@@ -1,0 +1,6 @@
+{
+  "name": "DeliveryControl",
+  "description": "Plataforma completa para gestão de entregas, entregadores, abastecimento de combustível, divisão financeira e relatórios.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

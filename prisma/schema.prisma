@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../backend/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String        @id @default(uuid())
+  name           String        @db.VarChar(255)
+  email          String        @unique @db.VarChar(255)
+  emailVerified   Boolean      @default(false) @map("email_verified")
+  image           String?
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  accounts       Account[]
+  sessions       Session[]
+  employees      Employee[]
+  deliveries     Delivery[]
+  gasoline       GasolineExpense[]
+  splitConfig    SplitConfig?
+
+  @@map("users")
+}
+
+model Account {
+  id                    String    @id @default(uuid())
+  accountId             String    @map("account_id")
+  providerId            String    @map("provider_id")
+  userId                String    @map("user_id")
+  accessToken           String?   @map("access_token")
+  refreshToken          String?   @map("refresh_token")
+  idToken               String?   @map("id_token")
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  expiresAt DateTime @map("expires_at")
+  token     String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Verification {
+  id         String   @id @default(uuid())
+  identifier String
+  value      String
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([identifier])
+  @@map("verifications")
+}
+
+model Employee {
+  id         String     @id @default(uuid())
+  userId     String     @map("user_id")
+  name       String     @db.VarChar(255)
+  role       String?    @db.VarChar(100)
+  phone      String?    @db.VarChar(50)
+  active     Boolean    @default(true)
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveriesA Delivery[] @relation("employee_a")
+  deliveriesB Delivery[] @relation("employee_b")
+
+  @@index([userId, active])
+  @@map("employees")
+}
+
+model Delivery {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  date          DateTime @db.Date
+  employeeAId   String   @map("employee_a_id")
+  employeeBId   String?  @map("employee_b_id")
+  deliveryCount Int      @map("delivery_count")
+  revenue       Decimal  @db.Decimal(10, 2)
+  notes         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  employeeA     Employee @relation("employee_a", fields: [employeeAId], references: [id], onDelete: Restrict)
+  employeeB     Employee? @relation("employee_b", fields: [employeeBId], references: [id], onDelete: Restrict)
+
+  @@index([userId, date])
+  @@index([employeeAId])
+  @@index([employeeBId])
+  @@map("deliveries")
+}
+
+model GasolineExpense {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  date        DateTime @db.Date
+  amount      Decimal  @db.Decimal(10, 2)
+  liters      Decimal? @db.Decimal(8, 3)
+  description String?  @db.VarChar(255)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@map("gasoline_expenses")
+}
+
+model SplitConfig {
+  id                   String   @id @default(uuid())
+  userId               String   @unique @map("user_id")
+  carPercentage        Decimal  @default(50) @map("car_percentage") @db.Decimal(5, 2)
+  employeeAPercentage  Decimal  @default(25) @map("employee_a_percentage") @db.Decimal(5, 2)
+  employeeBPercentage  Decimal  @default(25) @map("employee_b_percentage") @db.Decimal(5, 2)
+  updatedAt            DateTime @updatedAt @map("updated_at")
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("split_configs")
+}

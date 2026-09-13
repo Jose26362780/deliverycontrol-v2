@@ -1,0 +1,82 @@
+import { useState, useEffect, useCallback } from 'react';
+import { Employee } from '../../../types';
+import { EmployeeService } from '../services/employee.service';
+import { EmployeeFormValues } from '../schemas/employee.schema';
+import { useToast } from '../../../components/ui/Toast';
+
+export function useEmployees() {
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { success, error: showError } = useToast();
+
+  const fetchEmployees = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await EmployeeService.list();
+      setEmployees(data);
+    } catch (err: any) {
+      setError(err.message || 'Erro ao carregar funcionários');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEmployees();
+  }, [fetchEmployees]);
+
+  const createEmployee = async (data: EmployeeFormValues) => {
+    try {
+      setIsSubmitting(true);
+      const created = await EmployeeService.create(data);
+      setEmployees(prev => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
+      success('Funcionário cadastrado', `${created.name} foi adicionado à equipe.`);
+      return created;
+    } catch (err: any) {
+      showError('Erro ao cadastrar funcionário', err.message);
+      throw err;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const updateEmployee = async (id: string, data: EmployeeFormValues) => {
+    try {
+      setIsSubmitting(true);
+      const updated = await EmployeeService.update(id, data);
+      setEmployees(prev => prev.map(e => (e.id === id ? updated : e)));
+      success('Funcionário atualizado', `${updated.name} foi modificado.`);
+      return updated;
+    } catch (err: any) {
+      showError('Erro ao atualizar funcionário', err.message);
+      throw err;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const deleteEmployee = async (id: string, name: string) => {
+    try {
+      await EmployeeService.delete(id);
+      setEmployees(prev => prev.filter(e => e.id !== id));
+      success('Funcionário removido', `${name} foi excluído da lista.`);
+    } catch (err: any) {
+      showError('Erro ao remover funcionário', err.message);
+      throw err;
+    }
+  };
+
+  return {
+    employees,
+    isLoading,
+    isSubmitting,
+    error,
+    refresh: fetchEmployees,
+    createEmployee,
+    updateEmployee,
+    deleteEmployee,
+  };
+}

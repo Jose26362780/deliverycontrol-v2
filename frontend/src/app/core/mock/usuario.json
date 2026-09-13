@@ -1,0 +1,9 @@
+{
+  "id": "usr-001",
+  "nome": "Junior José",
+  "email": "juniorjose1925@gmail.com",
+  "documento": "123.456.789-00",
+  "telefone": "+55 (11) 98765-4321",
+  "urlFoto": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+  "cargo": "administrador"
+}

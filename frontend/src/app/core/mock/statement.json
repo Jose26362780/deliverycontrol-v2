@@ -1,0 +1,52 @@
+[
+  {
+    "id": "st-001",
+    "date": "2026-09-05T10:15:00Z",
+    "description": "Transferência Recebida - PIX",
+    "type": "credit",
+    "category": "Pix",
+    "amount": 1250.00,
+    "balanceAfter": 14250.75,
+    "sender": "Empresa Entregas Rápidas Ltda"
+  },
+  {
+    "id": "st-002",
+    "date": "2026-09-04T18:40:00Z",
+    "description": "Posto Shell - Abastecimento",
+    "type": "debit",
+    "category": "Combustível",
+    "amount": 210.50,
+    "balanceAfter": 13000.75,
+    "recipient": "Auto Posto Shell Central"
+  },
+  {
+    "id": "st-003",
+    "date": "2026-09-03T14:20:00Z",
+    "description": "Repasse Semanal de Entregadores",
+    "type": "credit",
+    "category": "Faturamento",
+    "amount": 3450.00,
+    "balanceAfter": 13211.25,
+    "sender": "DeliveryControl Hub"
+  },
+  {
+    "id": "st-004",
+    "date": "2026-09-02T09:12:00Z",
+    "description": "Saque em Dinheiro Caixa 24h",
+    "type": "debit",
+    "category": "Saque",
+    "amount": 500.00,
+    "balanceAfter": 9761.25,
+    "recipient": "Banco 24 Horas"
+  },
+  {
+    "id": "st-005",
+    "date": "2026-09-01T16:30:00Z",
+    "description": "Transferência Enviada - Carlos Silva",
+    "type": "debit",
+    "category": "Transferência",
+    "amount": 620.00,
+    "balanceAfter": 10261.25,
+    "recipient": "Carlos Silva (Repartidor A)"
+  }
+]
