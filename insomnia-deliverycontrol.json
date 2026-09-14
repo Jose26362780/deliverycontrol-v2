@@ -1,0 +1,512 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-09-14T00:00:00.000Z",
+  "__export_source": "deliverycontrol-v2",
+  "resources": [
+    {
+      "_id": "wrk_deliverycontrol",
+      "_type": "workspace",
+      "name": "DeliveryControl API",
+      "description": "Coleção oficial DeliveryControl v2 — Better Auth (cookie) + JWT legado em dev. Sem valores reais.",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "parentId": "wrk_deliverycontrol",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:3000",
+        "token": "",
+        "user_id": "",
+        "employee_id": "",
+        "delivery_id": "",
+        "gasoline_id": ""
+      }
+    },
+    {
+      "_id": "fld_health",
+      "_type": "request_group",
+      "parentId": "wrk_deliverycontrol",
+      "name": "0. Healthcheck"
+    },
+    {
+      "_id": "req_health",
+      "_type": "request",
+      "parentId": "fld_health",
+      "name": "Healthcheck (API + PostgreSQL)",
+      "description": "Sem auth. Em produção exige database: connected.",
+      "url": "{{ _.base_url }}/api/health",
+      "method": "GET"
+    },
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "parentId": "wrk_deliverycontrol",
+      "name": "1. Autenticação"
+    },
+    {
+      "_id": "req_ba_signup",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "[Better Auth] Sign-up email (oficial)",
+      "description": "Fluxo oficial em produção. Preserva cookie de sessão.",
+      "url": "{{ _.base_url }}/api/auth/sign-up/email",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Gestor Teste\",\n  \"email\": \"gestor@teste.com\",\n  \"password\": \"SenhaSegura123!\"\n}"
+      }
+    },
+    {
+      "_id": "req_ba_signin",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "[Better Auth] Sign-in email (oficial)",
+      "description": "Preserva cookie. Depois chame get-session.",
+      "url": "{{ _.base_url }}/api/auth/sign-in/email",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"gestor@teste.com\",\n  \"password\": \"SenhaSegura123!\"\n}"
+      }
+    },
+    {
+      "_id": "req_ba_social",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "[Better Auth] Sign-in Google (oficial)",
+      "description": "Inicia OAuth Google. Callback: /api/auth/callback/google.",
+      "url": "{{ _.base_url }}/api/auth/sign-in/social",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"provider\": \"google\",\n  \"callbackURL\": \"{{ _.base_url }}\"\n}"
+      }
+    },
+    {
+      "_id": "req_ba_session",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "[Better Auth] Get session (cookie)",
+      "description": "Envia cookie de sessão automaticamente.",
+      "url": "{{ _.base_url }}/api/auth/get-session",
+      "method": "GET"
+    },
+    {
+      "_id": "req_ba_signout",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "[Better Auth] Sign-out",
+      "url": "{{ _.base_url }}/api/auth/sign-out",
+      "method": "POST"
+    },
+    {
+      "_id": "req_auth_register",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "[Legado dev] Cadastrar (JWT)",
+      "description": "Só com BETTER_AUTH_ENABLED=false. Será removido.",
+      "url": "{{ _.base_url }}/api/auth/register",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Gestor Teste\",\n  \"email\": \"gestor@teste.com\",\n  \"password\": \"SenhaSegura123!\"\n}"
+      }
+    },
+    {
+      "_id": "req_auth_login",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "[Legado dev] Login (JWT)",
+      "description": "Copia token para o ambiente. Será removido.",
+      "url": "{{ _.base_url }}/api/auth/login",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"gestor@teste.com\",\n  \"password\": \"SenhaSegura123!\"\n}"
+      }
+    },
+    {
+      "_id": "req_auth_me",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "[Legado dev] Perfil /me (JWT)",
+      "url": "{{ _.base_url }}/api/auth/me",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "fld_employees",
+      "_type": "request_group",
+      "parentId": "wrk_deliverycontrol",
+      "name": "2. Funcionários"
+    },
+    {
+      "_id": "req_emp_list",
+      "_type": "request",
+      "parentId": "fld_employees",
+      "name": "Listar Funcionários",
+      "url": "{{ _.base_url }}/api/employees",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_emp_create",
+      "_type": "request",
+      "parentId": "fld_employees",
+      "name": "Criar Funcionário",
+      "url": "{{ _.base_url }}/api/employees",
+      "method": "POST",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Rodrigo Silva\",\n  \"role\": \"Entregador Titular\",\n  \"phone\": \"(11) 98888-7777\",\n  \"active\": true\n}"
+      }
+    },
+    {
+      "_id": "req_emp_get",
+      "_type": "request",
+      "parentId": "fld_employees",
+      "name": "Buscar Funcionário por ID",
+      "url": "{{ _.base_url }}/api/employees/{{ _.employee_id }}",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_emp_update",
+      "_type": "request",
+      "parentId": "fld_employees",
+      "name": "Atualizar Funcionário",
+      "url": "{{ _.base_url }}/api/employees/{{ _.employee_id }}",
+      "method": "PUT",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Rodrigo Silva Jr.\",\n  \"active\": true\n}"
+      }
+    },
+    {
+      "_id": "req_emp_delete",
+      "_type": "request",
+      "parentId": "fld_employees",
+      "name": "Excluir / Desativar Funcionário",
+      "description": "Com histórico vira soft-delete (active=false).",
+      "url": "{{ _.base_url }}/api/employees/{{ _.employee_id }}",
+      "method": "DELETE",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "fld_deliveries",
+      "_type": "request_group",
+      "parentId": "wrk_deliverycontrol",
+      "name": "3. Turnos de Entrega"
+    },
+    {
+      "_id": "req_del_list",
+      "_type": "request",
+      "parentId": "fld_deliveries",
+      "name": "Listar Turnos (com filtros)",
+      "description": "Filtros: ?startDate=AAAA-MM-DD&endDate=AAAA-MM-DD&employeeId=UUID",
+      "url": "{{ _.base_url }}/api/deliveries?startDate=2026-09-01&endDate=2026-09-14",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_del_create",
+      "_type": "request",
+      "parentId": "fld_deliveries",
+      "name": "Lançar Turno de Entrega",
+      "url": "{{ _.base_url }}/api/deliveries",
+      "method": "POST",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"date\": \"2026-09-14\",\n  \"employeeAId\": \"{{ _.employee_id }}\",\n  \"deliveryCount\": 45,\n  \"revenue\": 900.00,\n  \"notes\": \"Turno diurno\"\n}"
+      }
+    },
+    {
+      "_id": "req_del_get",
+      "_type": "request",
+      "parentId": "fld_deliveries",
+      "name": "Buscar Turno por ID",
+      "url": "{{ _.base_url }}/api/deliveries/{{ _.delivery_id }}",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_del_update",
+      "_type": "request",
+      "parentId": "fld_deliveries",
+      "name": "Atualizar Turno",
+      "url": "{{ _.base_url }}/api/deliveries/{{ _.delivery_id }}",
+      "method": "PUT",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"deliveryCount\": 46,\n  \"revenue\": 920.00\n}"
+      }
+    },
+    {
+      "_id": "req_del_delete",
+      "_type": "request",
+      "parentId": "fld_deliveries",
+      "name": "Excluir Turno",
+      "url": "{{ _.base_url }}/api/deliveries/{{ _.delivery_id }}",
+      "method": "DELETE",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "fld_gasoline",
+      "_type": "request_group",
+      "parentId": "wrk_deliverycontrol",
+      "name": "4. Combustível"
+    },
+    {
+      "_id": "req_gas_list",
+      "_type": "request",
+      "parentId": "fld_gasoline",
+      "name": "Listar Abastecimentos",
+      "url": "{{ _.base_url }}/api/gasoline",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_gas_create",
+      "_type": "request",
+      "parentId": "fld_gasoline",
+      "name": "Lançar Despesa com Combustível",
+      "url": "{{ _.base_url }}/api/gasoline",
+      "method": "POST",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"date\": \"2026-09-14\",\n  \"amount\": 150.00,\n  \"liters\": 25.5,\n  \"description\": \"Posto Ipiranga\"\n}"
+      }
+    },
+    {
+      "_id": "req_gas_get",
+      "_type": "request",
+      "parentId": "fld_gasoline",
+      "name": "Buscar Despesa por ID",
+      "url": "{{ _.base_url }}/api/gasoline/{{ _.gasoline_id }}",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_gas_update",
+      "_type": "request",
+      "parentId": "fld_gasoline",
+      "name": "Atualizar Despesa",
+      "url": "{{ _.base_url }}/api/gasoline/{{ _.gasoline_id }}",
+      "method": "PUT",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"amount\": 155.00,\n  \"liters\": 26.0\n}"
+      }
+    },
+    {
+      "_id": "req_gas_delete",
+      "_type": "request",
+      "parentId": "fld_gasoline",
+      "name": "Excluir Despesa",
+      "url": "{{ _.base_url }}/api/gasoline/{{ _.gasoline_id }}",
+      "method": "DELETE",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "fld_dashboard",
+      "_type": "request_group",
+      "parentId": "wrk_deliverycontrol",
+      "name": "5. Dashboard & Analytics"
+    },
+    {
+      "_id": "req_dash_overview",
+      "_type": "request",
+      "parentId": "fld_dashboard",
+      "name": "Resumo Geral Dashboard",
+      "url": "{{ _.base_url }}/api/dashboard",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_dash_weekly",
+      "_type": "request",
+      "parentId": "fld_dashboard",
+      "name": "Dashboard Semanal",
+      "url": "{{ _.base_url }}/api/dashboard/weekly",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_dash_monthly",
+      "_type": "request",
+      "parentId": "fld_dashboard",
+      "name": "Dashboard Mensal",
+      "url": "{{ _.base_url }}/api/dashboard/monthly",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_analytics_revenue",
+      "_type": "request",
+      "parentId": "fld_dashboard",
+      "name": "Analytics Receita",
+      "url": "{{ _.base_url }}/api/analytics/revenue",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_analytics_deliveries",
+      "_type": "request",
+      "parentId": "fld_dashboard",
+      "name": "Analytics Entregas",
+      "url": "{{ _.base_url }}/api/analytics/deliveries",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_analytics_gasoline",
+      "_type": "request",
+      "parentId": "fld_dashboard",
+      "name": "Analytics Combustível",
+      "url": "{{ _.base_url }}/api/analytics/gasoline",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_analytics_distribution",
+      "_type": "request",
+      "parentId": "fld_dashboard",
+      "name": "Analytics Divisão Financeira",
+      "url": "{{ _.base_url }}/api/analytics/distribution",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "fld_reports",
+      "_type": "request_group",
+      "parentId": "wrk_deliverycontrol",
+      "name": "6. Relatórios"
+    },
+    {
+      "_id": "req_rep_financial",
+      "_type": "request",
+      "parentId": "fld_reports",
+      "name": "Relatório Financeiro (período)",
+      "description": "Query: ?startDate=AAAA-MM-DD&endDate=AAAA-MM-DD",
+      "url": "{{ _.base_url }}/api/reports/financial?startDate=2026-09-01&endDate=2026-09-14",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_rep_weekly",
+      "_type": "request",
+      "parentId": "fld_reports",
+      "name": "Relatório Semanal",
+      "url": "{{ _.base_url }}/api/reports/weekly",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_rep_monthly",
+      "_type": "request",
+      "parentId": "fld_reports",
+      "name": "Relatório Mensal",
+      "url": "{{ _.base_url }}/api/reports/monthly",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_rep_pdf",
+      "_type": "request",
+      "parentId": "fld_reports",
+      "name": "Relatório PDF",
+      "url": "{{ _.base_url }}/api/reports/pdf?startDate=2026-09-01&endDate=2026-09-14",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "fld_settings",
+      "_type": "request_group",
+      "parentId": "wrk_deliverycontrol",
+      "name": "7. Configurações de Repasse"
+    },
+    {
+      "_id": "req_set_get",
+      "_type": "request",
+      "parentId": "fld_settings",
+      "name": "Obter Percentuais de Rateio",
+      "url": "{{ _.base_url }}/api/settings/split",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_set_update",
+      "_type": "request",
+      "parentId": "fld_settings",
+      "name": "Atualizar Percentuais de Rateio (100%)",
+      "url": "{{ _.base_url }}/api/settings/split",
+      "method": "PUT",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"carPercentage\": 50,\n  \"employeeAPercentage\": 25,\n  \"employeeBPercentage\": 25\n}"
+      }
+    },
+    {
+      "_id": "fld_isolation",
+      "_type": "request_group",
+      "parentId": "wrk_deliverycontrol",
+      "name": "8. Isolamento (usuário A x B)"
+    },
+    {
+      "_id": "req_iso_employee",
+      "_type": "request",
+      "parentId": "fld_isolation",
+      "name": "Isolamento: ler funcionário de outro usuário",
+      "description": "Esperado 404. Use token do usuário A com employee_id do usuário B.",
+      "url": "{{ _.base_url }}/api/employees/{{ _.employee_id }}",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    },
+    {
+      "_id": "req_iso_delivery",
+      "_type": "request",
+      "parentId": "fld_isolation",
+      "name": "Isolamento: ler entrega de outro usuário",
+      "description": "Esperado 404. Use token do usuário A com delivery_id do usuário B.",
+      "url": "{{ _.base_url }}/api/deliveries/{{ _.delivery_id }}",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }]
+    }
+  ]
+}
