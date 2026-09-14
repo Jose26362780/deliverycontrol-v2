@@ -1,0 +1,9 @@
+# Netlify — frontend estático (o backend roda no Render).
+# O backend (dist/server.cjs) NÃO é usado aqui, então o build do Netlify
+# compila só o frontend e nem precisa do Prisma/DATABASE_URL.
+[build]
+  command = "npm run build:frontend"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"

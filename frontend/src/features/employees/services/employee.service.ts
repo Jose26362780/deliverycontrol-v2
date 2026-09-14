@@ -15,7 +15,7 @@ export class EmployeeService {
     return apiClient.post('/employees', data);
   }
 
-  public static async update(id: string, data: EmployeeFormValues): Promise<Employee> {
+  public static async update(id: string, data: EmployeeFormValues | { active: boolean }): Promise<Employee> {
     return apiClient.put(`/employees/${id}`, data);
   }
 

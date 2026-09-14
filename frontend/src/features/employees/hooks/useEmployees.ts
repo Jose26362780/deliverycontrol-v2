@@ -58,13 +58,29 @@ export function useEmployees() {
     }
   };
 
+  const toggleActive = async (id: string, active: boolean) => {
+    try {
+      const updated = await EmployeeService.update(id, { active });
+      setEmployees(prev => prev.map(e => (e.id === id ? updated : e)));
+      success(
+        active ? 'Funcionário reativado' : 'Funcionário arquivado',
+        `${updated.name} foi ${active ? 'reativado' : 'movido para arquivados'}.`
+      );
+      return updated;
+    } catch (err: any) {
+      showError('Erro ao atualizar status', err.message);
+      throw err;
+    }
+  };
+
   const deleteEmployee = async (id: string, name: string) => {
     try {
       await EmployeeService.delete(id);
-      setEmployees(prev => prev.filter(e => e.id !== id));
-      success('Funcionário removido', `${name} foi excluído da lista.`);
+      // O backend faz soft-delete (active=false): move para arquivados em vez de sumir.
+      setEmployees(prev => prev.map(e => (e.id === id ? { ...e, active: false } : e)));
+      success('Funcionário arquivado', `${name} foi movido para arquivados.`);
     } catch (err: any) {
-      showError('Erro ao remover funcionário', err.message);
+      showError('Erro ao arquivar funcionário', err.message);
       throw err;
     }
   };
@@ -77,6 +93,7 @@ export function useEmployees() {
     refresh: fetchEmployees,
     createEmployee,
     updateEmployee,
+    toggleActive,
     deleteEmployee,
   };
 }

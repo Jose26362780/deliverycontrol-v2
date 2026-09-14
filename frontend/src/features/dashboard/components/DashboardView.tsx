@@ -55,8 +55,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigateTo }) =>
     employeesSummary: [],
   };
 
-  // Weekly bar visualization calculations (Lun a Dom)
-  const weeklyDays = useMemo(() => {
+  // Weekly bar visualization calculations (Lun a Dom) — somente dados reais da API
+  const weeklyData = useMemo(() => {
     const days = [
       { label: 'Lun', dayIdx: 1, gross: 0, net: 0 },
       { label: 'Mar', dayIdx: 2, gross: 0, net: 0 },
@@ -79,33 +79,28 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigateTo }) =>
       });
     }
 
-    const maxVal = Math.max(...days.map(d => d.gross), 100);
-    return days.map((d, index) => {
-      const defaultHeights = [
-        { grossH: 45, netRatio: 0.8 },
-        { grossH: 60, netRatio: 0.85 },
-        { grossH: 85, netRatio: 0.82 },
-        { grossH: 70, netRatio: 0.8 },
-        { grossH: 95, netRatio: 0.88 },
-        { grossH: 80, netRatio: 0.85 },
-        { grossH: 50, netRatio: 0.8 },
-      ];
+    const maxVal = Math.max(...days.map(d => d.gross), 1);
+    const hasAnyData = days.some(d => d.gross > 0);
+    return {
+      days: days.map(d => {
+        const grossHeight = d.gross > 0 ? Math.min(100, Math.max(15, (d.gross / maxVal) * 100)) : 0;
+        const netHeight = d.gross > 0
+          ? Math.min(100, Math.max(10, (d.net / Math.max(d.gross, 1)) * 100))
+          : 0;
 
-      const hasData = d.gross > 0;
-      const grossHeight = hasData ? Math.min(100, Math.max(15, (d.gross / maxVal) * 100)) : defaultHeights[index].grossH;
-      const netHeight = hasData
-        ? Math.min(100, Math.max(10, (d.net / Math.max(d.gross, 1)) * 100))
-        : defaultHeights[index].netRatio * 100;
-
-      return {
-        ...d,
-        grossHeight,
-        netHeight,
-        formattedGross: hasData ? formatCurrency(d.gross) : 'Demo',
-        formattedNet: hasData ? formatCurrency(d.net) : 'Demo',
-      };
-    });
+        return {
+          ...d,
+          grossHeight,
+          netHeight,
+          formattedGross: formatCurrency(d.gross),
+          formattedNet: formatCurrency(d.net),
+        };
+      }),
+      hasAnyData,
+    };
   }, [s.recentDeliveries]);
+
+  const { days: weeklyDays, hasAnyData: hasWeeklyData } = weeklyData;
 
   if (isLoading && !summary) {
     return (
@@ -235,6 +230,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigateTo }) =>
           {/* Quick Action bar below chart */}
           <div className="mt-5 pt-3 flex flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
+              {!hasWeeklyData && (
+                <span className="text-slate-500 font-medium">
+                  Sem dados no período — registre entregas para ver a evolução.
+                </span>
+              )}
               <span className="text-slate-400 font-medium">Accesos rápidos:</span>
               <button
                 type="button"

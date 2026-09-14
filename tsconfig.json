@@ -22,5 +22,16 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "include": ["frontend/**/*", "backend/**/*", "prisma/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "frontend/dist",
+    "frontend/src/app/core",
+    "frontend/src/app/shared",
+    "frontend/src/app/routes",
+    "frontend/src/app/rotas",
+    "frontend/src/app/component"
+  ]
 }

@@ -5,20 +5,23 @@ import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { ConfirmDeleteDialog } from '../../../components/ui/ConfirmDeleteDialog';
 import { formatDate } from '../../../utils/formatters';
-import { UserCheck, Edit2, Trash2, Calendar } from 'lucide-react';
+import { UserCheck, UserX, Edit2, Archive, RotateCcw, Calendar } from 'lucide-react';
 
 interface EmployeeCardProps {
   employee: Employee;
   onEdit: (employee: Employee) => void;
   onDelete: (id: string, name: string) => void;
+  onToggleActive: (id: string, active: boolean) => void;
 }
 
 export const EmployeeCard: React.FC<EmployeeCardProps> = ({
   employee,
   onEdit,
   onDelete,
+  onToggleActive,
 }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const isActive = employee.active !== false;
 
   return (
     <>
@@ -36,10 +39,17 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
               <p className="text-xs text-slate-400 mt-0.5">{employee.role || 'Repartidor'}</p>
             </div>
           </div>
-          <Badge variant="success" size="sm">
-            <UserCheck className="w-3 h-3" />
-            <span>Activo</span>
-          </Badge>
+          {isActive ? (
+            <Badge variant="success" size="sm">
+              <UserCheck className="w-3 h-3" />
+              <span>Activo</span>
+            </Badge>
+          ) : (
+            <Badge variant="default" size="sm">
+              <UserX className="w-3 h-3" />
+              <span>Archivado</span>
+            </Badge>
+          )}
         </div>
 
         <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
@@ -51,23 +61,36 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
         </div>
 
         <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onEdit(employee)}
-            leftIcon={<Edit2 className="w-3.5 h-3.5" />}
-          >
-            Editar
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-rose-400 hover:text-rose-300 hover:bg-rose-950/40"
-            onClick={() => setIsDeleteDialogOpen(true)}
-            leftIcon={<Trash2 className="w-3.5 h-3.5" />}
-          >
-            Eliminar
-          </Button>
+          {isActive ? (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onEdit(employee)}
+                leftIcon={<Edit2 className="w-3.5 h-3.5" />}
+              >
+                Editar
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-rose-400 hover:text-rose-300 hover:bg-rose-950/40"
+                onClick={() => setIsDeleteDialogOpen(true)}
+                leftIcon={<Archive className="w-3.5 h-3.5" />}
+              >
+                Archivar
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="lime"
+              size="sm"
+              onClick={() => onToggleActive(employee.id, true)}
+              leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
+            >
+              Reactivar
+            </Button>
+          )}
         </div>
       </Card>
 
@@ -75,9 +98,9 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={() => onDelete(employee.id, employee.name)}
-        title="Eliminar funcionario"
+        title="Archivar funcionario"
         entityName={employee.name}
-        confirmLabel="Excluir funcionário"
+        confirmLabel="Archivar funcionário"
         details={
           <>
             <div>

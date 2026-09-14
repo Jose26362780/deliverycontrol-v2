@@ -15,18 +15,28 @@ export const EmployeeList: React.FC = () => {
     isSubmitting,
     createEmployee,
     updateEmployee,
+    toggleActive,
     deleteEmployee,
     refresh,
   } = useEmployees();
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'archived'>('active');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
-  const filteredEmployees = employees.filter(e =>
-    e.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (e.role && e.role.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredEmployees = employees.filter(e => {
+    const matchesSearch =
+      e.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (e.role && e.role.toLowerCase().includes(searchTerm.toLowerCase()));
+    const isActive = e.active !== false;
+    const matchesStatus =
+      statusFilter === 'all' || (statusFilter === 'active' ? isActive : !isActive);
+    return matchesSearch && matchesStatus;
+  });
+
+  const activeCount = employees.filter(e => e.active !== false).length;
+  const archivedCount = employees.length - activeCount;
 
   const handleOpenCreate = () => {
     setSelectedEmployee(null);
@@ -83,7 +93,7 @@ export const EmployeeList: React.FC = () => {
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center gap-4">
+      <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center gap-3">
         <Input
           placeholder="Buscar por nombre o puesto..."
           value={searchTerm}
@@ -91,8 +101,27 @@ export const EmployeeList: React.FC = () => {
           leftIcon={<Search className="w-4 h-4" />}
           className="bg-slate-950 border-slate-800"
         />
-        <div className="text-xs text-slate-400 whitespace-nowrap font-medium px-2">
-          {filteredEmployees.length} {filteredEmployees.length === 1 ? 'funcionario' : 'funcionarios'}
+        <div className="flex items-center gap-2 shrink-0">
+          {(
+            [
+              { key: 'active', label: `Ativos (${activeCount})` },
+              { key: 'archived', label: `Arquivados (${archivedCount})` },
+              { key: 'all', label: `Todos (${employees.length})` },
+            ] as const
+          ).map(tab => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setStatusFilter(tab.key)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                statusFilter === tab.key
+                  ? 'bg-lime-400 text-slate-950'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -112,7 +141,9 @@ export const EmployeeList: React.FC = () => {
           <p className="text-sm text-slate-400 max-w-md mx-auto mt-1 mb-6">
             {searchTerm
               ? 'No hay funcionarios que coincidan con los términos de búsqueda.'
-              : 'Empiece registrando los repartidores de su equipo.'}
+              : statusFilter === 'archived'
+                ? 'No hay funcionarios archivados.'
+                : 'Empiece registrando los repartidores de su equipo.'}
           </p>
           <Button variant="lime" onClick={handleOpenCreate} leftIcon={<Plus className="w-4 h-4" />}>
             Registrar Primer Funcionario
@@ -126,6 +157,7 @@ export const EmployeeList: React.FC = () => {
               employee={emp}
               onEdit={handleOpenEdit}
               onDelete={deleteEmployee}
+              onToggleActive={toggleActive}
             />
           ))}
         </div>

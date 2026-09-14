@@ -10,6 +10,7 @@ export interface Employee {
   id: string;
   name: string;
   role?: string;
+  active: boolean;
   userId: string;
   createdAt: string;
 }
