@@ -51,12 +51,19 @@ export class AuthService {
   public static async loginWithGoogle(): Promise<void> {
     const result = await betterAuthClient.signIn.social({
       provider: 'google',
-      callbackURL: window.location.origin,
+      callbackURL: `${window.location.origin}/home`,
     });
 
     if (result.error) {
       throw new Error(result.error.message || 'Não foi possível autenticar com Google');
     }
+
+    // better-auth pode retornar a URL em vez de redirecionar sozinho.
+    const url = (result.data as { url?: string } | null)?.url;
+    if (url) {
+      window.location.href = url;
+    }
+    // Se redirecionou sozinho, a página recarrega e o initialize() busca a sessão.
   }
 
   public static async getSession(): Promise<User | null> {

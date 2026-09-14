@@ -20,7 +20,7 @@ async function startServer() {
   const app = express();
   const PORT = config.port;
   const betterAuthHandler = config.betterAuth.enabled
-    ? (await import('better-auth/node')).toNodeHandler((await import('./server/auth/better-auth')).auth)
+    ? (await import('better-auth/node')).toNodeHandler((await import('./server/auth/better-auth')).betterAuth)
     : null;
 
   // Middlewares
@@ -44,6 +44,9 @@ async function startServer() {
     standardHeaders: 'draft-8',
     legacyHeaders: false,
     message: { error: 'Muitas tentativas. Tente novamente mais tarde.' },
+    // get-session é polling (App initialize + cada navegação) e callback é
+    // o retorno do Google — limitar esses quebra o login social.
+    skip: (req) => req.url.includes('/get-session') || req.url.includes('/callback'),
   }));
 
   if (betterAuthHandler) {
