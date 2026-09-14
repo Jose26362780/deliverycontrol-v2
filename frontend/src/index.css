@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+button:not(:disabled),
+a,
+[role="button"] {
+  cursor: pointer;
+}

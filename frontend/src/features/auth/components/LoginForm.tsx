@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { useToast } from '../../../components/ui/Toast';
-import { Mail, Lock, ArrowRight, ShieldCheck, Truck } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Truck } from 'lucide-react';
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
@@ -20,7 +20,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -50,11 +49,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
       setFormError(message);
       showError('Erro de autenticação', message);
     }
-  };
-
-  const fillDemoCredentials = () => {
-    setValue('email', 'demo@deliverycontrol.com');
-    setValue('password', 'senha123');
   };
 
   return (
@@ -142,18 +136,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
             />
           </svg>
           <span className="group-hover:text-slate-100">Continuar com o Google</span>
-        </button>
-      </div>
-
-      {/* Acesso Rápido Demo */}
-      <div className="pt-4 border-t border-slate-800/80 text-center">
-        <button
-          type="button"
-          onClick={fillDemoCredentials}
-          className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-lime-400 transition-colors py-1.5 px-3 rounded-lg bg-slate-800/60 border border-slate-700/50"
-        >
-          <ShieldCheck className="w-3.5 h-3.5 text-lime-400" />
-          <span>Credenciais de demonstração (Demo)</span>
         </button>
       </div>
 
