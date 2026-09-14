@@ -2,6 +2,10 @@
  * HTTP API Client configured for DeliveryControl
  */
 
+// Em dev (Vite proxy) e em deploy single-server, mesma origem.
+// Em prod split (Netlify + Render), VITE_API_URL aponta para o backend.
+const API_BASE_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ?? '';
+
 class ApiClient {
   public async request<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const headers: Record<string, string> = {
@@ -12,7 +16,8 @@ class ApiClient {
     // Ensure endpoint has leading slash
     const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     // Prefix with /api if not already present
-    const url = path.startsWith('/api') ? path : `/api${path}`;
+    const apiPath = path.startsWith('/api') ? path : `/api${path}`;
+    const url = `${API_BASE_URL}${apiPath}`;
 
     try {
       const response = await fetch(url, {
