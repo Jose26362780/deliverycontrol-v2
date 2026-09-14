@@ -52,6 +52,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       await AuthService.loginWithGoogle();
+      // Sucesso = redirecionamento ao Google; a página recarrega.
+      // Mantém isLoading true até o reload; initialize() assume depois.
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro ao autenticar com Google';
       set({ isLoading: false, error: message });
