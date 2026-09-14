@@ -15,8 +15,8 @@ export interface AuthenticatedRequest extends Request {
 export async function authMiddleware(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
   if (config.betterAuth.enabled) {
     try {
-      const { auth } = await import('../auth/better-auth');
-      const session = await auth.api.getSession({
+      const { betterAuth } = await import('../auth/better-auth');
+      const session = await betterAuth.api.getSession({
         headers: fromNodeHeaders(req.headers),
       });
 
