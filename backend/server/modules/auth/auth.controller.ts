@@ -44,14 +44,14 @@ export class AuthController {
     res.status(200).json({ message: 'Sesión cerrada con éxito' });
   }
 
-  public static getMe(req: AuthenticatedRequest, res: Response): void {
+  public static async getMe(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       if (!req.user) {
         res.status(401).json({ error: 'No autorizado' });
         return;
       }
 
-      const user = AuthService.getMe(req.user.id);
+      const user = await AuthService.getMe(req.user.id);
       res.status(200).json({ user });
     } catch (error: any) {
       res.status(404).json({ error: error.message || 'Usuario no encontrado' });

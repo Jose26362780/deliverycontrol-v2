@@ -1,10 +1,14 @@
-import { db } from '../../db/database';
 import { FinanceService } from '../finance/finance.service';
+import { DeliveryRepository } from '../../repositories/delivery.repository';
+import { GasolineRepository } from '../../repositories/gasoline.repository';
+import { SplitConfigRepository } from '../../repositories/split-config.repository';
 
 export class AnalyticsService {
-  public static getRevenueAnalytics(userId: string) {
-    const deliveries = db.deliveries.filter(d => d.userId === userId);
-    const gasoline = db.gasolineExpenses.filter(g => g.userId === userId);
+  public static async getRevenueAnalytics(userId: string) {
+    const [deliveries, gasoline] = await Promise.all([
+      DeliveryRepository.list(userId),
+      GasolineRepository.list(userId),
+    ]);
 
     // Group by date
     const dateMap = new Map<string, { date: string; gross: number; gasoline: number; net: number }>();
@@ -45,8 +49,8 @@ export class AnalyticsService {
     };
   }
 
-  public static getDeliveryAnalytics(userId: string) {
-    const deliveries = db.deliveries.filter(d => d.userId === userId);
+  public static async getDeliveryAnalytics(userId: string) {
+    const deliveries = await DeliveryRepository.list(userId);
     
     // Group by date
     const map = new Map<string, { date: string; count: number; revenue: number; shifts: number }>();
@@ -79,9 +83,11 @@ export class AnalyticsService {
     };
   }
 
-  public static getGasolineAnalytics(userId: string) {
-    const expenses = db.gasolineExpenses.filter(g => g.userId === userId);
-    const deliveries = db.deliveries.filter(d => d.userId === userId);
+  public static async getGasolineAnalytics(userId: string) {
+    const [expenses, deliveries] = await Promise.all([
+      GasolineRepository.list(userId),
+      DeliveryRepository.list(userId),
+    ]);
 
     const totalSpent = expenses.reduce((sum, g) => sum + g.amount, 0);
     const totalLiters = expenses.reduce((sum, g) => sum + (g.liters || 0), 0);
@@ -108,10 +114,12 @@ export class AnalyticsService {
     };
   }
 
-  public static getDistributionAnalytics(userId: string) {
-    const deliveries = db.deliveries.filter(d => d.userId === userId);
-    const gasoline = db.gasolineExpenses.filter(g => g.userId === userId);
-    const splitConfig = db.getSplitConfig(userId);
+  public static async getDistributionAnalytics(userId: string) {
+    const [deliveries, gasoline, splitConfig] = await Promise.all([
+      DeliveryRepository.list(userId),
+      GasolineRepository.list(userId),
+      SplitConfigRepository.get(userId),
+    ]);
 
     const totalGross = deliveries.reduce((sum, d) => sum + d.revenue, 0);
     const totalGas = gasoline.reduce((sum, g) => sum + g.amount, 0);

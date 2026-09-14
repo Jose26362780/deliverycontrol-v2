@@ -5,6 +5,8 @@ import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { config } from './server/config';
+import { getPrismaClient } from './server/db/prisma';
+import { errorHandler } from './server/middlewares/error.middleware';
 import { authRoutes } from './server/modules/auth/auth.routes';
 import { employeeRoutes } from './server/modules/employees/employee.routes';
 import { deliveryRoutes } from './server/modules/deliveries/delivery.routes';
@@ -26,7 +28,7 @@ async function startServer() {
   app.use(helmet());
   app.use(cors({
     origin: (origin, callback) => {
-      if (!origin || config.allowedOrigins.includes(origin)) {
+      if (!origin || config.allowedOrigins.includes(origin) || origin.includes('localhost')) {
         callback(null, true);
         return;
       }
@@ -35,26 +37,50 @@ async function startServer() {
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   }));
+
   app.use('/api/auth', rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 20,
+    limit: 30,
     standardHeaders: 'draft-8',
     legacyHeaders: false,
     message: { error: 'Muitas tentativas. Tente novamente mais tarde.' },
   }));
+
   if (betterAuthHandler) {
     app.all('/api/auth/*', betterAuthHandler);
   }
+
   app.use(express.json({ limit: config.jsonBodyLimit }));
 
-  // API Healthcheck
-  app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', app: 'DeliveryControl', timestamp: new Date().toISOString() });
+  // API Healthcheck with Database Connectivity Check
+  // Em produção exige PostgreSQL real; em dev aceita modo sem DATABASE_URL (migração).
+  app.get('/api/health', async (req, res) => {
+    let databaseStatus = 'not_configured';
+    if (config.databaseUrl) {
+      try {
+        const prisma = getPrismaClient();
+        await prisma.$queryRaw`SELECT 1`;
+        databaseStatus = 'connected';
+      } catch (err: any) {
+        databaseStatus = `error: ${err.message}`;
+      }
+    }
+
+    const isProduction = config.nodeEnv === 'production';
+    const isHealthy = databaseStatus === 'connected' || (!isProduction && databaseStatus === 'not_configured');
+    res.status(isHealthy ? 200 : 503).json({
+      status: isHealthy ? 'ok' : 'degraded',
+      app: 'DeliveryControl',
+      database: databaseStatus,
+      authProvider: config.betterAuth.enabled ? 'better-auth' : 'jwt',
+      timestamp: new Date().toISOString(),
+    });
   });
 
-  // API Routes (mounted with and without /api/ for maximum compatibility)
+  // API Routes — contrato oficial sob /api (o frontend prefixa /api automaticamente).
   const apiRouter = express.Router();
 
+  // Rotas JWT legadas só existem com Better Auth desativado (migração/dev).
   if (!betterAuthHandler) {
     apiRouter.use('/auth', authRoutes);
   }
@@ -66,22 +92,15 @@ async function startServer() {
   apiRouter.use('/reports', reportRoutes);
   apiRouter.use('/settings', settingsRoutes);
 
-  // Mount at /api and top-level paths matching spec
+  // Contrato único: somente /api (evita duplicar rotas e confundir CORS/auth).
   app.use('/api', apiRouter);
-  if (!betterAuthHandler) {
-    app.use('/auth', authRoutes);
-  }
-  app.use('/employees', employeeRoutes);
-  app.use('/deliveries', deliveryRoutes);
-  app.use('/gasoline', gasolineRoutes);
-  app.use('/dashboard', dashboardRoutes);
-  app.use('/analytics', analyticsRoutes);
-  app.use('/reports', reportRoutes);
-  app.use('/settings', settingsRoutes);
 
   app.use('/api', (req, res) => {
     res.status(404).json({ error: 'Endpoint não encontrado' });
   });
+
+  // Global Error Handler for API
+  app.use(errorHandler);
 
   // In development, the frontend runs as a separate Vite process.
   // Production serves the compiled frontend from this same server.
@@ -105,5 +124,5 @@ async function startServer() {
 }
 
 startServer().catch(err => {
-  console.error('Falha crítica ao iniciar servidor:', err);
+  console.error('Falha crítica ao iniciar servidor:', err instanceof Error ? err.message : 'erro desconhecido');
 });

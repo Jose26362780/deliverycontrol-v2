@@ -5,31 +5,31 @@ import { createDeliverySchema, updateDeliverySchema, deliveryQuerySchema } from 
 import { sendError, sendSuccess } from '../../utils/response';
 
 export class DeliveryController {
-  public static list(req: AuthenticatedRequest, res: Response): void {
+  public static async list(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const userId = req.user!.id;
       const queryValidation = deliveryQuerySchema.safeParse(req.query);
       const query = queryValidation.success ? queryValidation.data : {};
 
-      const deliveries = DeliveryService.list(userId, query);
+      const deliveries = await DeliveryService.list(userId, query);
       sendSuccess(res, deliveries, 200);
     } catch (error: any) {
       sendError(res, 500, error.message || 'Erro ao listar entregas', 'ERRO_INTERNO');
     }
   }
 
-  public static getById(req: AuthenticatedRequest, res: Response): void {
+  public static async getById(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const userId = req.user!.id;
       const { id } = req.params;
-      const delivery = DeliveryService.getById(id, userId);
+      const delivery = await DeliveryService.getById(id, userId);
       sendSuccess(res, delivery, 200);
     } catch (error: any) {
       sendError(res, 404, error.message || 'Entrega não encontrada', 'ENTREGA_NAO_ENCONTRADA');
     }
   }
 
-  public static create(req: AuthenticatedRequest, res: Response): void {
+  public static async create(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const userId = req.user!.id;
       const validation = createDeliverySchema.safeParse(req.body);
@@ -38,14 +38,14 @@ export class DeliveryController {
         return;
       }
 
-      const delivery = DeliveryService.create(validation.data, userId);
+      const delivery = await DeliveryService.create(validation.data, userId);
       sendSuccess(res, delivery, 201);
     } catch (error: any) {
       sendError(res, 400, error.message || 'Erro ao criar entrega', 'OPERACAO_INVALIDA');
     }
   }
 
-  public static update(req: AuthenticatedRequest, res: Response): void {
+  public static async update(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const userId = req.user!.id;
       const { id } = req.params;
@@ -55,22 +55,21 @@ export class DeliveryController {
         return;
       }
 
-      const updated = DeliveryService.update(id, validation.data, userId);
+      const updated = await DeliveryService.update(id, validation.data, userId);
       sendSuccess(res, updated, 200);
     } catch (error: any) {
       sendError(res, 400, error.message || 'Erro ao atualizar entrega', 'OPERACAO_INVALIDA');
     }
   }
 
-  public static delete(req: AuthenticatedRequest, res: Response): void {
+  public static async delete(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const userId = req.user!.id;
       const { id } = req.params;
-      const result = DeliveryService.delete(id, userId);
+      const result = await DeliveryService.delete(id, userId);
       sendSuccess(res, result, 200);
     } catch (error: any) {
       sendError(res, 400, error.message || 'Erro ao excluir entrega', 'OPERACAO_INVALIDA');
     }
   }
 }
-

@@ -1,10 +1,12 @@
-import { db } from '../../db/database';
-import { DashboardSummary, EmployeeFinancialSummary, DeliveryWithEmployees } from '../../types';
+import { DashboardSummary, EmployeeFinancialSummary } from '../../types';
 import { FinanceService } from '../finance/finance.service';
-import { DeliveryService } from '../deliveries/delivery.service';
+import { DeliveryRepository } from '../../repositories/delivery.repository';
+import { GasolineRepository } from '../../repositories/gasoline.repository';
+import { EmployeeRepository } from '../../repositories/employee.repository';
+import { SplitConfigRepository } from '../../repositories/split-config.repository';
 
 export class DashboardService {
-  public static getSummary(userId: string, period: 'all' | 'weekly' | 'monthly' = 'all'): DashboardSummary {
+  public static async getSummary(userId: string, period: 'all' | 'weekly' | 'monthly' = 'all'): Promise<DashboardSummary> {
     const now = new Date();
     let startDate: string | undefined;
 
@@ -16,28 +18,23 @@ export class DashboardService {
       startDate = past30Days.toISOString().split('T')[0];
     }
 
-    // Filter deliveries & gasoline
-    let userDeliveries = db.deliveries.filter(d => d.userId === userId);
-    let userGasoline = db.gasolineExpenses.filter(g => g.userId === userId);
+    const [deliveriesWithDetails, userGasoline, userEmployees, splitConfig] = await Promise.all([
+      DeliveryRepository.list(userId, startDate ? { startDate } : {}),
+      GasolineRepository.list(userId, startDate),
+      EmployeeRepository.list(userId),
+      SplitConfigRepository.get(userId),
+    ]);
 
-    if (startDate) {
-      userDeliveries = userDeliveries.filter(d => d.date >= startDate!);
-      userGasoline = userGasoline.filter(g => g.date >= startDate!);
-    }
-
-    const splitConfig = db.getSplitConfig(userId);
-
-    const totalDeliveries = userDeliveries.reduce((sum, d) => sum + d.deliveryCount, 0);
-    const uniqueDays = new Set(userDeliveries.map(d => d.date));
+    const totalDeliveries = deliveriesWithDetails.reduce((sum, d) => sum + d.deliveryCount, 0);
+    const uniqueDays = new Set(deliveriesWithDetails.map(d => d.date));
     const totalDaysWorked = uniqueDays.size;
 
-    const grossRevenue = Number(userDeliveries.reduce((sum, d) => sum + d.revenue, 0).toFixed(2));
+    const grossRevenue = Number(deliveriesWithDetails.reduce((sum, d) => sum + d.revenue, 0).toFixed(2));
     const gasolineExpense = Number(userGasoline.reduce((sum, g) => sum + g.amount, 0).toFixed(2));
 
     const splitResult = FinanceService.calculateFinancialSplit(grossRevenue, gasolineExpense, splitConfig);
 
     // Calculate individual employee summaries
-    const userEmployees = db.employees.filter(e => e.userId === userId);
     const employeeMap = new Map<string, EmployeeFinancialSummary>();
 
     userEmployees.forEach(emp => {
@@ -49,8 +46,6 @@ export class DashboardService {
         totalEarned: 0,
       });
     });
-
-    const deliveriesWithDetails = DeliveryService.list(userId, startDate ? { startDate } : {});
 
     deliveriesWithDetails.forEach(d => {
       if (employeeMap.has(d.employeeAId)) {

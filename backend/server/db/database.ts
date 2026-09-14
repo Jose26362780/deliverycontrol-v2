@@ -22,12 +22,17 @@ export class Database {
   public splitConfigs: SplitRuleConfig[] = [];
 
   private constructor() {
+    // Persistência JSON é somente para desenvolvimento/migração.
+    // Em produção o backend usa PostgreSQL via Prisma (DATABASE_URL).
+    if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
+      throw new Error('DATABASE_URL é obrigatório em produção. O JSON local não pode ser usado.');
+    }
     const dataDir = path.join(process.cwd(), '.data');
     if (!fs.existsSync(dataDir)) {
       try {
         fs.mkdirSync(dataDir, { recursive: true });
       } catch (err) {
-        console.warn('[Database] Não foi possível criar pasta .data, usando diretório atual:', err);
+        console.warn('[Database] Não foi possível criar pasta .data.');
       }
     }
     this.storageFilePath = path.join(dataDir, 'deliverycontrol.db.json');
@@ -42,6 +47,7 @@ export class Database {
   }
 
   public saveToDisk(): void {
+    if (process.env.NODE_ENV === 'production') return;
     try {
       const data: DatabaseSchema = {
         users: this.users,
@@ -52,11 +58,12 @@ export class Database {
       };
       fs.writeFileSync(this.storageFilePath, JSON.stringify(data, null, 2), 'utf-8');
     } catch (error) {
-      console.error('[Database] Erro ao persistir dados em disco:', error);
+      console.error('[Database] Erro ao persistir dados em disco.');
     }
   }
 
   private loadFromDiskOrSeed(): void {
+    if (process.env.NODE_ENV === 'production') return;
     if (fs.existsSync(this.storageFilePath)) {
       try {
         const fileContent = fs.readFileSync(this.storageFilePath, 'utf-8');
@@ -70,7 +77,7 @@ export class Database {
           return;
         }
       } catch (error) {
-        console.warn('[Database] Arquivo de dados corrompido, recriando com semente inicial:', error);
+        console.warn('[Database] Arquivo de dados inválido, recriando com semente inicial.');
       }
     }
 
@@ -219,6 +226,20 @@ export class Database {
     this.splitConfigs.push(defaultCfg);
     this.saveToDisk();
     return defaultCfg;
+  }
+
+  public saveSplitConfig(userId: string, data: { carPercentage: number; employeeAPercentage: number; employeeBPercentage: number }): SplitRuleConfig {
+    const index = this.splitConfigs.findIndex(c => c.userId === userId);
+    const updated: SplitRuleConfig = {
+      id: index >= 0 ? this.splitConfigs[index].id : `split-${userId}`,
+      userId,
+      ...data,
+      updatedAt: new Date().toISOString(),
+    };
+    if (index >= 0) this.splitConfigs[index] = updated;
+    else this.splitConfigs.push(updated);
+    this.saveToDisk();
+    return updated;
   }
 
   public isEmployeeReferencedInDeliveries(employeeId: string, userId: string): boolean {

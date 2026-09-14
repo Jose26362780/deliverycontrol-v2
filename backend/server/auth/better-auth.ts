@@ -10,11 +10,20 @@ if (!config.betterAuth.secret || config.betterAuth.secret.length < 32) {
   throw new Error('BETTER_AUTH_SECRET deve possuir pelo menos 32 caracteres');
 }
 
-if (!config.google.clientId || !config.google.clientSecret) {
-  throw new Error('GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET são obrigatórios para o Better Auth');
-}
+const isLocal = config.databaseUrl.includes('localhost') || config.databaseUrl.includes('127.0.0.1');
+const pool = new Pool({
+  connectionString: config.databaseUrl,
+  ssl: isLocal ? false : { rejectUnauthorized: false },
+});
 
-const pool = new Pool({ connectionString: config.databaseUrl });
+const socialProviders = (config.google.clientId && config.google.clientSecret)
+  ? {
+      google: {
+        clientId: config.google.clientId,
+        clientSecret: config.google.clientSecret,
+      },
+    }
+  : undefined;
 
 export const auth = betterAuth({
   database: pool,
@@ -24,10 +33,5 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  socialProviders: {
-    google: {
-      clientId: config.google.clientId,
-      clientSecret: config.google.clientSecret,
-    },
-  },
+  ...(socialProviders ? { socialProviders } : {}),
 });

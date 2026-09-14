@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
-import { db } from '../db/database';
+import { UserRepository } from '../repositories/user.repository';
 import { fromNodeHeaders } from 'better-auth/node';
 
 export interface AuthenticatedRequest extends Request {
@@ -20,21 +20,18 @@ export async function authMiddleware(req: AuthenticatedRequest, res: Response, n
         headers: fromNodeHeaders(req.headers),
       });
 
-      if (!session?.user) {
-        res.status(401).json({ error: 'Sessão não encontrada ou expirada' });
+      if (session?.user) {
+        req.user = {
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.name,
+        };
+        next();
         return;
       }
-
-      req.user = {
-        id: session.user.id,
-        email: session.user.email,
-        name: session.user.name,
-      };
-      next();
     } catch {
-      res.status(401).json({ error: 'Não foi possível validar a sessão' });
+      // Continue to try Bearer token fallback below
     }
-    return;
   }
 
   const authHeader = req.headers.authorization;
@@ -48,7 +45,7 @@ export async function authMiddleware(req: AuthenticatedRequest, res: Response, n
 
   try {
     const decoded = jwt.verify(token, config.jwtSecret) as { id: string; email: string };
-    const user = db.findUserById(decoded.id);
+    const user = await UserRepository.findById(decoded.id);
 
     if (!user) {
       res.status(401).json({ error: 'Usuário não encontrado' });
