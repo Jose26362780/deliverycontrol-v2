@@ -1,20 +1,12 @@
 import bcrypt from 'bcryptjs';
-
-interface PrismaClientLike {
-  user: { upsert(args: unknown): Promise<{ id: string }> };
-  splitConfig: { upsert(args: unknown): Promise<unknown> };
-  $disconnect(): Promise<void>;
-}
-
-const prismaModule = await import('@prisma/client') as unknown as {
-  PrismaClient: new () => PrismaClientLike;
-};
-const prisma = new prismaModule.PrismaClient();
+import { getPrismaClient } from '../backend/server/db/prisma';
 
 async function main() {
   if (process.env.NODE_ENV === 'production') {
     throw new Error('O seed de demonstração não pode ser executado em produção.');
   }
+
+  const prisma = getPrismaClient();
 
   const passwordHash = await bcrypt.hash('senha123', 10);
   const user = await prisma.user.upsert({
@@ -23,7 +15,22 @@ async function main() {
     create: {
       name: 'Gestor Demo',
       email: 'demo@deliverycontrol.com',
-      passwordHash,
+    },
+  });
+
+  await prisma.account.upsert({
+    where: {
+      providerId_accountId: {
+        providerId: 'credential',
+        accountId: user.id,
+      },
+    },
+    update: { password: passwordHash },
+    create: {
+      accountId: user.id,
+      providerId: 'credential',
+      userId: user.id,
+      password: passwordHash,
     },
   });
 
@@ -32,13 +39,12 @@ async function main() {
     update: {},
     create: { userId: user.id },
   });
+
+  console.log('Seed de desenvolvimento executado com sucesso no PostgreSQL!');
 }
 
 main()
   .catch(error => {
     console.error('Falha no seed de desenvolvimento:', error);
     process.exitCode = 1;
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
   });

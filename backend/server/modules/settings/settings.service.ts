@@ -1,20 +1,13 @@
-import { db } from '../../db/database';
+import { SplitConfigRepository } from '../../repositories/split-config.repository';
 import { SplitRuleConfig } from '../../types';
 import { UpdateSplitConfigInput } from './settings.schemas';
 
 export class SettingsService {
-  public static getSplitConfig(userId: string): SplitRuleConfig {
-    return db.getSplitConfig(userId);
+  public static async getSplitConfig(userId: string): Promise<SplitRuleConfig> {
+    return SplitConfigRepository.get(userId);
   }
 
-  public static updateSplitConfig(userId: string, data: UpdateSplitConfigInput): SplitRuleConfig {
-    const current = db.getSplitConfig(userId);
-    current.carPercentage = data.carPercentage;
-    current.employeeAPercentage = data.employeeAPercentage;
-    current.employeeBPercentage = data.employeeBPercentage;
-    current.updatedAt = new Date().toISOString();
-    db.saveToDisk();
-    return current;
+  public static async updateSplitConfig(userId: string, data: UpdateSplitConfigInput): Promise<SplitRuleConfig> {
+    return SplitConfigRepository.update(userId, data);
   }
 }
-

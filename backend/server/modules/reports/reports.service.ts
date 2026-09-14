@@ -1,7 +1,8 @@
-import { db } from '../../db/database';
 import { FinanceService } from '../finance/finance.service';
-import { DeliveryService } from '../deliveries/delivery.service';
-import { GasolineService } from '../gasoline/gasoline.service';
+import { DeliveryRepository } from '../../repositories/delivery.repository';
+import { GasolineRepository } from '../../repositories/gasoline.repository';
+import { SplitConfigRepository } from '../../repositories/split-config.repository';
+import { UserRepository } from '../../repositories/user.repository';
 
 export interface FinancialReport {
   period: string;
@@ -45,11 +46,10 @@ export interface FinancialReport {
 }
 
 export class ReportsService {
-  public static generateFinancialReport(
+  public static async generateFinancialReport(
     userId: string,
     options?: { period?: string; startDate?: string; endDate?: string; employeeId?: string }
-  ): FinancialReport {
-    const user = db.findUserById(userId);
+  ): Promise<FinancialReport> {
     const now = new Date();
     
     let startDateStr = options?.startDate;
@@ -62,21 +62,21 @@ export class ReportsService {
       endDateStr = endDateStr || now.toISOString().split('T')[0];
     }
 
-    const deliveries = DeliveryService.list(userId, {
-      startDate: startDateStr,
-      endDate: endDateStr,
-      employeeId: options?.employeeId,
-    });
+    const [user, deliveries, gasoline, splitConfig] = await Promise.all([
+      UserRepository.findById(userId),
+      DeliveryRepository.list(userId, {
+        startDate: startDateStr,
+        endDate: endDateStr,
+        employeeId: options?.employeeId,
+      }),
+      GasolineRepository.list(userId, startDateStr),
+      SplitConfigRepository.get(userId),
+    ]);
 
-    const gasoline = GasolineService.list(userId, {
-      startDate: startDateStr,
-      endDate: endDateStr,
-    });
-
-    const splitConfig = db.getSplitConfig(userId);
+    const filteredGasoline = gasoline.filter(g => g.date <= endDateStr!);
 
     const gross = Number(deliveries.reduce((sum, d) => sum + d.revenue, 0).toFixed(2));
-    const gasTotal = Number(gasoline.reduce((sum, g) => sum + g.amount, 0).toFixed(2));
+    const gasTotal = Number(filteredGasoline.reduce((sum, g) => sum + g.amount, 0).toFixed(2));
     const totalDeliveries = deliveries.reduce((sum, d) => sum + d.deliveryCount, 0);
     const uniqueDays = new Set(deliveries.map(d => d.date)).size;
 
@@ -142,14 +142,14 @@ export class ReportsService {
         netRevenueShareB: d.netRevenueShareB,
         carShare: d.carShare,
       })),
-      gasolineExpenses: gasoline.map(g => ({
+      gasolineExpenses: filteredGasoline.map(g => ({
         id: g.id,
         date: g.date,
         amount: g.amount,
         liters: g.liters,
         description: g.description,
       })),
-      gasolineList: gasoline.map(g => ({
+      gasolineList: filteredGasoline.map(g => ({
         id: g.id,
         date: g.date,
         amount: g.amount,
@@ -161,7 +161,7 @@ export class ReportsService {
   }
 
   // Backward compatibility
-  public static generateReport(userId: string, period: 'weekly' | 'monthly') {
+  public static async generateReport(userId: string, period: 'weekly' | 'monthly') {
     return this.generateFinancialReport(userId, { period });
   }
 }

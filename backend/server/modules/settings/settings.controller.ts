@@ -5,17 +5,17 @@ import { updateSplitConfigSchema } from './settings.schemas';
 import { sendError, sendSuccess } from '../../utils/response';
 
 export class SettingsController {
-  public static getSplitConfig(req: AuthenticatedRequest, res: Response): void {
+  public static async getSplitConfig(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const userId = req.user!.id;
-      const config = SettingsService.getSplitConfig(userId);
+      const config = await SettingsService.getSplitConfig(userId);
       sendSuccess(res, config, 200);
     } catch (error: any) {
       sendError(res, 500, error.message || 'Erro ao carregar configurações de divisão', 'ERRO_INTERNO');
     }
   }
 
-  public static updateSplitConfig(req: AuthenticatedRequest, res: Response): void {
+  public static async updateSplitConfig(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const userId = req.user!.id;
       const validation = updateSplitConfigSchema.safeParse(req.body);
@@ -30,7 +30,7 @@ export class SettingsController {
         return;
       }
 
-      const updated = SettingsService.updateSplitConfig(userId, validation.data);
+      const updated = await SettingsService.updateSplitConfig(userId, validation.data);
       res.status(200).json({
         ...updated,
         success: true,
@@ -45,4 +45,3 @@ export class SettingsController {
     }
   }
 }
-

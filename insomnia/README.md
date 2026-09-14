@@ -1,5 +1,7 @@
 # Insomnia — DeliveryControl
 
+Coleção versionada: `insomnia-deliverycontrol.json` (importe no Insomnia).
+
 ## Ambiente local
 
 Crie um ambiente `Local` com:
@@ -15,20 +17,22 @@ Crie um ambiente `Local` com:
 }
 ```
 
-Use `Authorization: Bearer {{ token }}` nas rotas protegidas.
+`token` é só para as rotas `[Legado dev]` (JWT). O fluxo oficial Better Auth usa
+cookie de sessão preservado pelo Insomnia (`credentials`/cookies ativados).
 
 ## Sequência mínima
 
-1. `GET {{ base_url }}/api/health`
-2. `POST {{ base_url }}/api/auth/register`
-3. `POST {{ base_url }}/api/auth/login`; copie `token` para o ambiente.
-4. `GET {{ base_url }}/api/auth/me`
-5. CRUD de `/api/employees`
-6. CRUD de `/api/deliveries`
-7. CRUD de `/api/gasoline`
-8. `GET {{ base_url }}/api/dashboard/stats`
-9. `GET {{ base_url }}/api/analytics`
-10. `GET {{ base_url }}/api/reports/financial`
+1. `GET {{ base_url }}/api/health` (sem auth; em prod exige `database: connected`)
+2. Better Auth: `sign-up/email` → `sign-in/email` → `get-session` → `sign-out`;
+   Google: `sign-in/social` com `{ "provider": "google" }`
+3. CRUD de `/api/employees` (salve `employee_id`)
+4. CRUD de `/api/deliveries` com `?startDate=&endDate=&employeeId=` (salve `delivery_id`)
+5. CRUD de `/api/gasoline` (salve `gasoline_id`)
+6. `GET /api/dashboard`, `/weekly`, `/monthly`
+7. `GET /api/analytics/revenue|deliveries|gasoline|distribution`
+8. `GET /api/reports/financial?startDate=&endDate=`, `/weekly`, `/monthly`, `/pdf`
+9. `GET/PUT /api/settings/split` (soma = 100%)
+10. Pasta `8. Isolamento`: token do usuário A com IDs do usuário B → esperado 404
 
 ## Better Auth e Google
 
@@ -51,14 +55,15 @@ adicione valores reais a este arquivo.
 
 Configure:
 
-- Build Command: `npm install && npm run build`
+- Build Command: `npm install && npx prisma generate && npx prisma migrate deploy && npm run build`
 - Start Command: `npm start`
 - `NODE_ENV=production`
 - `DATABASE_URL`
-- `JWT_SECRET`
+- `JWT_SECRET` (legado)
+- `BETTER_AUTH_SECRET`, `BETTER_AUTH_ENABLED=true`, `BETTER_AUTH_URL`
 - `JWT_EXPIRES_IN`
 - `FRONTEND_URL`
 - variáveis `GOOGLE_*`
 
-O backend ainda usa JSON local até a migração Prisma ser concluída; não use essa
-persistência em produção.
+O backend usa PostgreSQL em produção; o JSON em `.data/` é só fallback de
+desenvolvimento e é ignorado com `NODE_ENV=production`.
