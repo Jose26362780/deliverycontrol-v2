@@ -17,12 +17,20 @@ if (!secret || secret.length < 32) {
   throw new Error('BETTER_AUTH_SECRET deve ter pelo menos 32 caracteres.');
 }
 
+const isSecureContext = (process.env.BETTER_AUTH_URL || '').startsWith('https://');
+
+// FRONTEND_URL pode conter várias origens separadas por vírgula.
+const frontendOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 export const betterAuth = createBetterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
   secret,
   database: prismaAdapter(getPrismaClient(), { provider: 'postgresql' }),
   trustedOrigins: [
-    process.env.FRONTEND_URL || 'http://localhost:5173',
+    ...frontendOrigins,
     process.env.BETTER_AUTH_URL || 'http://localhost:3000',
   ].filter(Boolean) as string[],
   emailAndPassword: {
@@ -58,6 +66,21 @@ export const betterAuth = createBetterAuth({
     },
   },
   advanced: {
-    useSecureCookies: (process.env.BETTER_AUTH_URL || '').startsWith('https://'),
+    useSecureCookies: isSecureContext,
+    // Frontend (Netlify) e backend (Render) são sites diferentes.
+    // Sem SameSite=None + Secure + Partitioned (CHIPS), o Chrome — sobretudo
+    // em aba anônima — bloqueia o cookie de state/PKCE como third-party e o
+    // callback do Google falha com `?error=state_mismatch`.
+    // Em dev (http://localhost) mantém o padrão Lax, pois
+    // SameSite=None exige Secure/HTTPS.
+    ...(isSecureContext
+      ? {
+          defaultCookieAttributes: {
+            sameSite: 'none',
+            secure: true,
+            partitioned: true,
+          },
+        }
+      : {}),
   },
 });
