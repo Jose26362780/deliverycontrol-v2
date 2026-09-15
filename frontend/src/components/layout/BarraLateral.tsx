@@ -30,7 +30,7 @@ export const BarraLateral: React.FC<PropriedadesBarraLateral> = ({
   const { user, logout } = useAuth();
 
   const itensMenu = [
-    { id: 'dashboard', rotulo: 'Painel', icone: LayoutDashboard },
+    { id: 'dashboard', rotulo: 'Dashboard', icone: LayoutDashboard },
     { id: 'deliveries', rotulo: 'Entregas', icone: Package },
     { id: 'employees', rotulo: 'Funcionários', icone: Users },
     { id: 'gasoline', rotulo: 'Gasolina', icone: Fuel },

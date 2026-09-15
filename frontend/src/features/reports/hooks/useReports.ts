@@ -26,7 +26,7 @@ export function useReports() {
       const data = await ReportService.generateReport(filters);
       setReport(data);
     } catch (err: any) {
-      setError(err.message || 'Erro ao gerar relatório');
+      setError(err.message || 'Error al generar el informe');
     } finally {
       setIsLoading(false);
     }
@@ -73,15 +73,15 @@ export function useReports() {
 
   const downloadPdf = () => {
     if (!report) {
-      showError('Aviso', 'Não há relatório disponível para baixar.');
+      showError('Aviso', 'No hay informe disponible para descargar.');
       return;
     }
     try {
       setIsExporting(true);
       downloadPdfReport(report);
-      success('Download Concluído', 'O relatório em PDF foi baixado com sucesso.');
+      success('Descarga completada', 'El informe en PDF se descargó con éxito.');
     } catch (err: any) {
-      showError('Erro ao gerar PDF', err.message || 'Falha ao baixar arquivo');
+      showError('Error al generar el PDF', err.message || 'Error al descargar el archivo');
     } finally {
       setIsExporting(false);
     }
@@ -89,7 +89,7 @@ export function useReports() {
 
   const printOrViewPdf = () => {
     if (!report) {
-      showError('Aviso', 'Não há relatório disponível para visualização.');
+      showError('Aviso', 'No hay informe disponible para visualizar.');
       return;
     }
     try {

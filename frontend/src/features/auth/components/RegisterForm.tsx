@@ -35,10 +35,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
     setFormError(null);
     try {
       await registerUser(data.name, data.email, data.password);
-      success('Conta criada com sucesso!', 'Seu ambiente DeliveryControl está pronto para operar.');
+      success('¡Cuenta creada con éxito!', 'Tu entorno DeliveryControl está listo para operar.');
     } catch (err: any) {
-      setFormError(err.message || 'Erro ao registrar a conta.');
-      showError('Erro no cadastro', err.message || 'Tente novamente com outro e-mail.');
+      setFormError(err.message || 'Error al registrar la cuenta.');
+      showError('Error en el registro', err.message || 'Inténtalo de nuevo con otro correo.');
     }
   };
 
@@ -47,9 +47,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
     try {
       await loginWithGoogle();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Erro ao autenticar com Google';
+      const message = err instanceof Error ? err.message : 'Error al autenticar con Google';
       setFormError(message);
-      showError('Erro de autenticação', message);
+      showError('Error de autenticación', message);
     }
   };
 
@@ -59,9 +59,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-lime-400 text-slate-950 mb-4 shadow-lg shadow-lime-400/20">
           <Truck className="w-7 h-7" strokeWidth={2.4} />
         </div>
-        <h2 className="text-2xl font-bold text-white tracking-tight">Criar Conta no DeliveryControl</h2>
+        <h2 className="text-2xl font-bold text-white tracking-tight">Crear cuenta en DeliveryControl</h2>
         <p className="text-sm text-slate-400 mt-1">
-          Comece a gerenciar suas entregas e finanças hoje
+          Empieza a gestionar tus entregas y finanzas hoy
         </p>
       </div>
 
@@ -74,36 +74,36 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
       {/* Formulário de Cadastro */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input
-          label="Nome Completo ou Empresa"
+          label="Nombre completo o empresa"
           type="text"
-          placeholder="Ex: Carlos Silva / Transportes Express"
+          placeholder="Ej: Carlos Silva / Transportes Express"
           leftIcon={<UserIcon className="w-4 h-4" />}
           error={errors.name?.message}
           {...register('name')}
         />
 
         <Input
-          label="E-mail"
+          label="Correo electrónico"
           type="email"
-          placeholder="seu.email@exemplo.com"
+          placeholder="tu.correo@ejemplo.com"
           leftIcon={<Mail className="w-4 h-4" />}
           error={errors.email?.message}
           {...register('email')}
         />
 
         <Input
-          label="Senha"
+          label="Contraseña"
           type="password"
-          placeholder="Mínimo de 6 caracteres"
+          placeholder="Mínimo 6 caracteres"
           leftIcon={<Lock className="w-4 h-4" />}
           error={errors.password?.message}
           {...register('password')}
         />
 
         <Input
-          label="Confirmar Senha"
+          label="Confirmar contraseña"
           type="password"
-          placeholder="Repita sua senha"
+          placeholder="Repite tu contraseña"
           leftIcon={<CheckCircle2 className="w-4 h-4" />}
           error={errors.confirmPassword?.message}
           {...register('confirmPassword')}
@@ -115,7 +115,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
           className="w-full mt-2"
           isLoading={isLoading}
         >
-          Criar Minha Conta
+          Crear mi cuenta
         </Button>
       </form>
 
@@ -124,7 +124,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
         <div className="flex items-center gap-3 mb-4">
           <div className="flex-1 h-px bg-slate-800" />
           <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-            ou cadastre-se com
+            o regístrate con
           </span>
           <div className="flex-1 h-px bg-slate-800" />
         </div>
@@ -153,18 +153,18 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) =
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
             />
           </svg>
-          <span className="group-hover:text-slate-100">Cadastrar com o Google</span>
+          <span className="group-hover:text-slate-100">Registrarse con Google</span>
         </button>
       </div>
 
       <div className="mt-6 text-center text-xs text-slate-400 pt-5 border-t border-slate-800">
-        Já tem uma conta?{' '}
+        ¿Ya tienes cuenta?{' '}
         <button
           type="button"
           onClick={onSwitchToLogin}
           className="text-lime-400 hover:underline font-semibold"
         >
-          Acesse aqui
+          Accede aquí
         </button>
       </div>
     </div>

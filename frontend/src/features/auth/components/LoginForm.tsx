@@ -33,10 +33,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
     setFormError(null);
     try {
       await login(data.email, data.password);
-      success('Sessão iniciada!', 'Bem-vindo ao DeliveryControl.');
+      success('¡Sesión iniciada!', 'Bienvenido a DeliveryControl.');
     } catch (err: any) {
-      setFormError(err.message || 'Erro ao autenticar.');
-      showError('Erro de autenticação', err.message || 'Verifique seu e-mail e senha.');
+      setFormError(err.message || 'Error al autenticar.');
+      showError('Error de autenticación', err.message || 'Verifica tu correo y contraseña.');
     }
   };
 
@@ -45,9 +45,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
     try {
       await loginWithGoogle();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Erro ao autenticar com Google';
+      const message = err instanceof Error ? err.message : 'Error al autenticar con Google';
       setFormError(message);
-      showError('Erro de autenticação', message);
+      showError('Error de autenticación', message);
     }
   };
 
@@ -57,9 +57,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-lime-400 text-slate-950 mb-4 shadow-lg shadow-lime-400/20">
           <Truck className="w-7 h-7" strokeWidth={2.4} />
         </div>
-        <h2 className="text-2xl font-bold text-white tracking-tight">Acessar DeliveryControl</h2>
+        <h2 className="text-2xl font-bold text-white tracking-tight">Delivery Control</h2>
         <p className="text-sm text-slate-400 mt-1">
-          Gestão de entregas, combustível e controle financeiro
+          Gestiona el control financiero de tus entregas, combustible y pagos a funcionarios
         </p>
       </div>
 
@@ -72,16 +72,16 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
       {/* Formulário de Autenticação */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input
-          label="E-mail"
+          label="Correo electrónico"
           type="email"
-          placeholder="seu.email@exemplo.com"
+          placeholder="tu.correo@ejemplo.com"
           leftIcon={<Mail className="w-4 h-4" />}
           error={errors.email?.message}
           {...register('email')}
         />
 
         <Input
-          label="Senha"
+          label="Contraseña"
           type="password"
           placeholder="••••••••"
           leftIcon={<Lock className="w-4 h-4" />}
@@ -96,7 +96,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
           isLoading={isLoading}
           rightIcon={<ArrowRight className="w-4 h-4" />}
         >
-          Entrar no Sistema
+          Entrar al sistema
         </Button>
       </form>
 
@@ -105,7 +105,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
         <div className="flex items-center gap-3 mb-4">
           <div className="flex-1 h-px bg-slate-800" />
           <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-            ou continue com
+            o continúa con
           </span>
           <div className="flex-1 h-px bg-slate-800" />
         </div>
@@ -135,18 +135,18 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
             />
           </svg>
-          <span className="group-hover:text-slate-100">Continuar com o Google</span>
+          <span className="group-hover:text-slate-100">Continuar con Google</span>
         </button>
       </div>
 
       <div className="mt-5 text-center text-xs text-slate-400">
-        Não tem uma conta?{' '}
+        ¿No tienes cuenta?{' '}
         <button
           type="button"
           onClick={onSwitchToRegister}
           className="text-lime-400 hover:underline font-semibold"
         >
-          Cadastre-se gratuitamente
+          Regístrate gratuitamente
         </button>
       </div>
 

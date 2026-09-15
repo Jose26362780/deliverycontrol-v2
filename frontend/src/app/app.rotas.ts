@@ -16,7 +16,7 @@ export const ROTAS_APP: Record<string, RotaApp> = {
   painel: {
     id: 'painel',
     caminho: '/painel',
-    titulo: 'Painel',
+    titulo: 'Dashboard',
     componente: PaginaPainelEntregas,
   },
   entregas: {

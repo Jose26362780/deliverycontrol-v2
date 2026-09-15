@@ -27,13 +27,13 @@ export function buildPdfDocument(report: FinancialReport): jsPDF {
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(203, 213, 225);
-  doc.text('RELATÓRIO DE FECHAMENTO FINANCEIRO E LIQUIDAÇÃO', 14, 18);
+  doc.text('INFORME DE CIERRE FINANCIERO Y LIQUIDACIÓN', 14, 18);
 
   doc.setFontSize(8);
   doc.setTextColor(148, 163, 184);
-  const dataGeracao = `Gerado em: ${formatDate(report.generatedAt)}`;
+  const dataGeracao = `Generado el: ${formatDate(report.generatedAt)}`;
   doc.text(dataGeracao, 196, 12, { align: 'right' });
-  const periodoStr = `Período: ${report.period || 'Geral'}`;
+  const periodoStr = `Período: ${report.period || 'General'}`;
   doc.text(periodoStr, 196, 18, { align: 'right' });
 
   let currentY = 36;
@@ -42,17 +42,17 @@ export function buildPdfDocument(report: FinancialReport): jsPDF {
   doc.setTextColor(...textDark);
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
-  doc.text('1. RESUMO FINANCEIRO CONSOLIDADO', 14, currentY);
+  doc.text('1. RESUMEN FINANCIERO CONSOLIDADO', 14, currentY);
 
   currentY += 4;
 
   const cardWidth = 43;
   const cardHeight = 16;
   const cards = [
-    { label: 'RECEITA BRUTA', value: formatCurrency(report.grossRevenue), color: textDark },
-    { label: 'COMBUSTÍVEL', value: `-${formatCurrency(report.gasolineExpense)}`, color: [225, 29, 72] as [number, number, number] },
+    { label: 'INGRESOS BRUTOS', value: formatCurrency(report.grossRevenue), color: textDark },
+    { label: 'COMBUSTIBLE', value: `-${formatCurrency(report.gasolineExpense)}`, color: [225, 29, 72] as [number, number, number] },
     { label: 'EMPRESA (50%)', value: formatCurrency(report.carShare), color: [16, 149, 193] as [number, number, number] },
-    { label: 'ENTREGADORES', value: formatCurrency(report.employeesShare), color: [124, 58, 237] as [number, number, number] },
+    { label: 'REPARTIDORES', value: formatCurrency(report.employeesShare), color: [124, 58, 237] as [number, number, number] },
   ];
 
   cards.forEach((c, idx) => {
@@ -78,7 +78,7 @@ export function buildPdfDocument(report: FinancialReport): jsPDF {
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...textDark);
-  doc.text('2. LIQUIDAÇÃO INDIVIDUAL AOS ENTREGADORES', 14, currentY);
+  doc.text('2. LIQUIDACIÓN INDIVIDUAL A REPARTIDORES', 14, currentY);
   currentY += 2;
 
   const employeeRows = report.employeesSummary.length > 0
@@ -88,11 +88,11 @@ export function buildPdfDocument(report: FinancialReport): jsPDF {
         `${e.deliveriesCount} entregas`,
         formatCurrency(e.totalEarned),
       ])
-    : [['Nenhum entregador com registros no período.', '-', '-', '-']];
+    : [['Ningún repartidor con registros en el período.', '-', '-', '-']];
 
   autoTable(doc, {
     startY: currentY,
-    head: [['Entregador / Motorista', 'Turnos Trabalhados', 'Entregas', 'Total Líquido a Receber']],
+    head: [['Repartidor / Conductor', 'Turnos Trabajados', 'Entregas', 'Total Neto a Recibir']],
     body: employeeRows,
     theme: 'grid',
     headStyles: {
@@ -122,7 +122,7 @@ export function buildPdfDocument(report: FinancialReport): jsPDF {
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...textDark);
-  doc.text('3. DETALHAMENTO DE TURNOS DE ENTREGA', 14, currentY);
+  doc.text('3. DETALLE DE TURNOS DE ENTREGA', 14, currentY);
   currentY += 2;
 
   const deliveryRows = report.deliveries.length > 0
@@ -134,11 +134,11 @@ export function buildPdfDocument(report: FinancialReport): jsPDF {
         formatCurrency(d.carShare),
         formatCurrency(d.netRevenueShareA + (d.netRevenueShareB || 0)),
       ])
-    : [['Sem turnos registrados no período.', '-', '-', '-', '-', '-']];
+    : [['Sin turnos registrados en el período.', '-', '-', '-', '-', '-']];
 
   autoTable(doc, {
     startY: currentY,
-    head: [['Data', 'Equipe / Motoristas', 'Qtd.', 'Bruto', 'Empresa (50%)', 'Líquido Equipe']],
+    head: [['Fecha', 'Equipo / Conductores', 'Cant.', 'Bruto', 'Empresa (50%)', 'Neto Equipo']],
     body: deliveryRows,
     theme: 'striped',
     headStyles: {
@@ -172,19 +172,19 @@ export function buildPdfDocument(report: FinancialReport): jsPDF {
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...textDark);
-    doc.text('4. DEDUÇÕES DE COMBUSTÍVEL', 14, currentY);
+    doc.text('4. DEDUCCIONES DE COMBUSTIBLE', 14, currentY);
     currentY += 2;
 
     const gasRows = report.gasolineExpenses.slice(0, 8).map(g => [
       formatDate(g.date),
-      g.description || 'Abastecimento',
+      g.description || 'Abastecimiento',
       g.liters ? `${g.liters} L` : '--',
       formatCurrency(g.amount),
     ]);
 
     autoTable(doc, {
       startY: currentY,
-      head: [['Data', 'Descrição / Posto', 'Litros', 'Valor Duzido']],
+      head: [['Fecha', 'Descripción / Estación', 'Litros', 'Valor Deducido']],
       body: gasRows,
       theme: 'grid',
       headStyles: {
@@ -212,17 +212,17 @@ export function buildPdfDocument(report: FinancialReport): jsPDF {
   doc.setFontSize(7.5);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...textMuted);
-  doc.text('Documento oficial de dados e prestação de contas do sistema DeliveryControl.', 105, 290, { align: 'center' });
+  doc.text('Documento oficial de datos y rendición de cuentas del sistema DeliveryControl.', 105, 290, { align: 'center' });
 
   return doc;
 }
 
 export function downloadPdfReport(report: FinancialReport, customFilename?: string): void {
   const doc = buildPdfDocument(report);
-  const periodSlug = (report.period || 'fechamento')
+  const periodSlug = (report.period || 'cierre')
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '-');
-  const filename = customFilename || `relatorio-financeiro-deliverycontrol-${periodSlug}.pdf`;
+  const filename = customFilename || `informe-financiero-deliverycontrol-${periodSlug}.pdf`;
   doc.save(filename);
 }
 

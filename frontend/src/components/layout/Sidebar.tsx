@@ -30,7 +30,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { user, logout } = useAuth();
 
   const menuItems = [
-    { id: 'dashboard', label: 'Painel', icon: LayoutDashboard },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'deliveries', label: 'Entregas', icon: Package },
     { id: 'employees', label: 'Funcionários', icon: Users },
     { id: 'gasoline', label: 'Gasolina', icon: Fuel },

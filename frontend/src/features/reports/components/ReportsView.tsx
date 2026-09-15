@@ -42,7 +42,7 @@ export const ReportsView: React.FC = () => {
   const [mostrarFiltroAvancado, setMostrarFiltroAvancado] = useState(false);
 
   const opcoesFuncionarios = [
-    { value: '', label: 'Todos os Entregadores' },
+    { value: '', label: 'Todos los Repartidores' },
     ...employees.map(e => ({ value: e.id, label: e.name })),
   ];
 
@@ -57,10 +57,10 @@ export const ReportsView: React.FC = () => {
             </span>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                Relatório & Fechamento Financeiro
+                Informe & Cierre Financiero
               </h2>
               <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-                Visualize os dados oficiais consolidados e baixe em formato PDF.
+                Visualiza los datos oficiales consolidados y descarga en formato PDF.
               </p>
             </div>
           </div>
@@ -85,9 +85,9 @@ export const ReportsView: React.FC = () => {
               isLoading={isExporting}
               leftIcon={<Download className="w-4 h-4" />}
               className="w-full sm:w-auto shadow-lg shadow-lime-400/20 font-bold justify-center text-xs sm:text-sm"
-              title="Baixar relatório em arquivo PDF"
+              title="Descargar informe en archivo PDF"
             >
-              Baixar Relatório em PDF
+              Descargar Informe en PDF
             </Button>
           </div>
         </div>
@@ -101,10 +101,10 @@ export const ReportsView: React.FC = () => {
             </span>
             {(
               [
-                { id: 'todos', label: 'Tudo' },
-                { id: 'hoje', label: 'Hoje' },
+                { id: 'todos', label: 'Todo' },
+                { id: 'hoje', label: 'Hoy' },
                 { id: 'semana', label: 'Esta Semana' },
-                { id: 'mes', label: 'Este Mês' },
+                { id: 'mes', label: 'Este Mes' },
               ] as { id: PeriodoPredefinido; label: string }[]
             ).map(p => (
               <button
@@ -125,10 +125,10 @@ export const ReportsView: React.FC = () => {
               type="button"
               onClick={() => setMostrarFiltroAvancado(!mostrarFiltroAvancado)}
               className="px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-white flex items-center gap-1 ml-1 hover:bg-slate-800 transition-colors shrink-0"
-              title="Filtrar por datas específicas ou entregador"
+              title="Filtrar por fechas específicas o repartidor"
             >
               <Filter className="w-3 h-3" />
-              <span>{mostrarFiltroAvancado ? 'Ocultar Filtros' : 'Mais Filtros'}</span>
+              <span>{mostrarFiltroAvancado ? 'Ocultar Filtros' : 'Más Filtros'}</span>
             </button>
           </div>
 
@@ -136,10 +136,10 @@ export const ReportsView: React.FC = () => {
             type="button"
             onClick={refresh}
             className="text-slate-400 hover:text-white flex items-center gap-1 transition-colors self-end sm:self-auto py-1"
-            title="Atualizar dados"
+            title="Actualizar datos"
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            <span>Atualizar</span>
+            <span>Actualizar</span>
           </button>
         </div>
 
@@ -147,19 +147,19 @@ export const ReportsView: React.FC = () => {
         {mostrarFiltroAvancado && (
           <div className="p-3.5 bg-slate-950/80 border border-slate-800 rounded-xl grid grid-cols-1 sm:grid-cols-3 gap-3">
             <DatePicker
-              label="Data Início"
+              label="Fecha Inicio"
               value={filters.startDate || ''}
               onChange={value => updateFilters({ startDate: value || undefined })}
               showShortcuts={false}
             />
             <DatePicker
-              label="Data Fim"
+              label="Fecha Fin"
               value={filters.endDate || ''}
               onChange={value => updateFilters({ endDate: value || undefined })}
               showShortcuts={false}
             />
             <div>
-              <label className="block text-[11px] font-medium text-slate-400 mb-1">Entregador</label>
+              <label className="block text-[11px] font-medium text-slate-400 mb-1">Repartidor</label>
               <Select
                 options={opcoesFuncionarios}
                 value={filters.employeeId || ''}
@@ -195,20 +195,20 @@ export const ReportsView: React.FC = () => {
                     DeliveryControl
                   </span>
                   <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-300">
-                    Dados Oficiais
+                    Datos Oficiales
                   </span>
                 </div>
                 <h1 className="text-lg sm:text-2xl font-black text-slate-900 mt-2 tracking-tight">
-                  Relatório de Fechamento Financeiro
+                  Informe de Cierre Financiero
                 </h1>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Período: <strong>{report.period || 'Geral'}</strong> • Emitido em: {formatDate(report.generatedAt)}
+                  Período: <strong>{report.period || 'General'}</strong> • Emitido el: {formatDate(report.generatedAt)}
                 </p>
               </div>
 
               <div className="bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-none border-slate-200">
                 <span className="text-[11px] uppercase font-bold text-slate-500 block">
-                  Lucro Líquido Distribuível
+                  Ganancia Neta Distribuible
                 </span>
                 <span className="text-xl sm:text-3xl font-black text-slate-950 block">
                   {formatCurrency(report.netRevenue)}
@@ -222,7 +222,7 @@ export const ReportsView: React.FC = () => {
             <div className="flex items-center gap-2 mb-3">
               <DollarSign className="w-4 h-4 text-slate-700" />
               <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                1. Resumo Financeiro Consolidado
+                1. Resumen Financiero Consolidado
               </h3>
             </div>
 
@@ -235,8 +235,8 @@ export const ReportsView: React.FC = () => {
                       <Package className="w-4 h-4" />
                     </span>
                     <div>
-                      <span className="text-xs font-bold text-slate-900 block">Receita Bruta Total</span>
-                      <span className="text-[11px] text-slate-500 block">Total faturado com entregas e pedidos no período</span>
+                      <span className="text-xs font-bold text-slate-900 block">Ingresos Brutos Totales</span>
+                      <span className="text-[11px] text-slate-500 block">Total facturado con entregas y pedidos en el período</span>
                     </div>
                   </div>
                   <div className="text-left sm:text-right pl-10 sm:pl-0">
@@ -255,8 +255,8 @@ export const ReportsView: React.FC = () => {
                       <TrendingDown className="w-4 h-4" />
                     </span>
                     <div>
-                      <span className="text-xs font-bold text-rose-900 block">Despesa com Combustível (Gasolina)</span>
-                      <span className="text-[11px] text-rose-600/90 block">Dedução direta de abastecimentos dos veículos</span>
+                      <span className="text-xs font-bold text-rose-900 block">Gasto de Combustible (Gasolina)</span>
+                      <span className="text-[11px] text-rose-600/90 block">Deducción directa de abastecimientos de los vehículos</span>
                     </div>
                   </div>
                   <div className="text-left sm:text-right pl-10 sm:pl-0">
@@ -275,8 +275,8 @@ export const ReportsView: React.FC = () => {
                       <Wallet className="w-4 h-4" />
                     </span>
                     <div>
-                      <span className="text-xs font-bold text-emerald-950 block">Lucro Líquido Apurado</span>
-                      <span className="text-[11px] text-emerald-700 block">Receita Bruta deduzida das despesas de combustível</span>
+                      <span className="text-xs font-bold text-emerald-950 block">Ganancia Neta Obtenida</span>
+                      <span className="text-[11px] text-emerald-700 block">Ingresos brutos menos los gastos de combustible</span>
                     </div>
                   </div>
                   <div className="text-left sm:text-right pl-10 sm:pl-0">
@@ -295,8 +295,8 @@ export const ReportsView: React.FC = () => {
                       <Building2 className="w-4 h-4" />
                     </span>
                     <div>
-                      <span className="text-xs font-bold text-sky-950 block">Parte da Empresa / Veículo (50%)</span>
-                      <span className="text-[11px] text-sky-700 block">Custo operacional, amortização e margem veicular</span>
+                      <span className="text-xs font-bold text-sky-950 block">Parte de la Empresa / Vehículo (50%)</span>
+                      <span className="text-[11px] text-sky-700 block">Costo operativo, amortización y margen vehicular</span>
                     </div>
                   </div>
                   <div className="text-left sm:text-right pl-10 sm:pl-0">
@@ -315,8 +315,8 @@ export const ReportsView: React.FC = () => {
                       <Users className="w-4 h-4" />
                     </span>
                     <div>
-                      <span className="text-xs font-bold text-indigo-950 block">Repasse Total aos Entregadores (50%)</span>
-                      <span className="text-[11px] text-indigo-700 block">Montante total destinado aos motoristas no período</span>
+                      <span className="text-xs font-bold text-indigo-950 block">Reparto Total a Repartidores (50%)</span>
+                      <span className="text-[11px] text-indigo-700 block">Monto total destinado a los conductores en el período</span>
                     </div>
                   </div>
                   <div className="text-left sm:text-right pl-10 sm:pl-0">
@@ -334,13 +334,13 @@ export const ReportsView: React.FC = () => {
             <div className="flex items-center gap-2 mb-3">
               <Users className="w-4 h-4 text-slate-700" />
               <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                2. Liquidação Individual aos Entregadores
+                2. Liquidación Individual a Repartidores
               </h3>
             </div>
 
             {report.employeesSummary.length === 0 ? (
               <div className="p-4 text-center text-xs text-slate-400 bg-slate-50 border border-slate-200 rounded-xl">
-                Nenhum entregador com registros no período.
+                Ningún repartidor con registros en el período.
               </div>
             ) : (
               <div className="space-y-2.5">
@@ -362,7 +362,7 @@ export const ReportsView: React.FC = () => {
 
                       <div className="flex sm:flex-col items-baseline sm:items-end justify-between border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
                         <span className="text-[10px] uppercase font-bold text-slate-400 block sm:hidden">
-                          Valor Líquido:
+                          Valor Neto:
                         </span>
                         <span className="text-base sm:text-lg font-black text-emerald-700">
                           {formatCurrency(emp.totalEarned)}
@@ -380,13 +380,13 @@ export const ReportsView: React.FC = () => {
             <div className="flex items-center gap-2 mb-3">
               <Package className="w-4 h-4 text-slate-700" />
               <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                3. Turnos e Entregas Registradas
+                3. Turnos y Entregas Registradas
               </h3>
             </div>
 
             {report.deliveries.length === 0 ? (
               <div className="p-4 text-center text-xs text-slate-400 bg-slate-50 border border-slate-200 rounded-xl">
-                Sem turnos de entregas registrados no período.
+                Sin turnos de entregas registrados en el período.
               </div>
             ) : (
               <div className="space-y-2">
@@ -417,11 +417,11 @@ export const ReportsView: React.FC = () => {
                           <span className="font-semibold text-slate-800">{formatCurrency(del.revenue)}</span>
                         </div>
                         <div>
-                          <span className="text-[10px] text-slate-400 block sm:hidden">Veículo</span>
+                          <span className="text-[10px] text-slate-400 block sm:hidden">Vehículo</span>
                           <span className="text-sky-700 font-medium">{formatCurrency(del.carShare)}</span>
                         </div>
                         <div>
-                          <span className="text-[10px] text-slate-400 block sm:hidden">Equipe</span>
+                          <span className="text-[10px] text-slate-400 block sm:hidden">Equipo</span>
                           <span className="font-black text-slate-900">
                             {formatCurrency(del.netRevenueShareA + (del.netRevenueShareB || 0))}
                           </span>
@@ -440,7 +440,7 @@ export const ReportsView: React.FC = () => {
               <div className="flex items-center gap-2 mb-3">
                 <Fuel className="w-4 h-4 text-rose-500" />
                 <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                  4. Deduções de Combustível
+                  4. Deducciones de Combustible
                 </h3>
               </div>
 
@@ -461,7 +461,7 @@ export const ReportsView: React.FC = () => {
                           )}
                         </div>
                         <p className="text-xs text-slate-600 mt-0.5">
-                          {gas.description || 'Abastecimento'}
+                          {gas.description || 'Abastecimiento'}
                         </p>
                       </div>
 
@@ -477,18 +477,18 @@ export const ReportsView: React.FC = () => {
 
           {/* Rodapé Informativo Simples (Sem assinaturas, apenas dados oficiais) */}
           <div className="pt-5 border-t border-slate-200 mt-6 text-center text-[11px] text-slate-400">
-            Documento gerado eletronicamente por DeliveryControl. Válido para controle interno e prestação de contas.
+            Documento generado electrónicamente por DeliveryControl. Válido para control interno y rendición de cuentas.
           </div>
         </div>
       ) : (
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 sm:p-12 text-center text-slate-400">
           <FileText className="w-10 h-10 sm:w-12 sm:h-12 mx-auto text-slate-600 mb-3" />
-          <p className="font-semibold text-white text-sm sm:text-base">Nenhum dado registrado para este período.</p>
+          <p className="font-semibold text-white text-sm sm:text-base">Ningún dato registrado para este período.</p>
           <p className="text-xs text-slate-500 mt-1">
-            Cadastre entregas ou abastecimentos para visualizar e baixar o fechamento em PDF.
+            Registra entregas o abastecimientos para visualizar y descargar el cierre en PDF.
           </p>
           <Button variant="outline" size="sm" onClick={clearFilters} className="mt-4">
-            Limpar Filtros
+            Limpiar Filtros
           </Button>
         </div>
       )}

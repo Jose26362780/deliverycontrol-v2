@@ -1,11 +1,11 @@
 export function formatCurrency(value: number | undefined | null): string {
-  if (value === undefined || value === null || isNaN(value)) return '$ 0.00';
-  return new Intl.NumberFormat('es-ES', {
+  if (value === undefined || value === null || isNaN(value)) return 'R$ 0,00';
+  return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'BRL',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value).replace('USD', '$').trim();
+  }).format(value);
 }
 
 export function formatDate(dateStr: string | undefined | null): string {

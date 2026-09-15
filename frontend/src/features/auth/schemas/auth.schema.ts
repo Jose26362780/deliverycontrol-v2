@@ -1,17 +1,17 @@
 import { z } from 'zod';
 
 export const loginFormSchema = z.object({
-  email: z.string().email('Insira um e-mail válido'),
-  password: z.string().min(1, 'A senha é obrigatória'),
+  email: z.string().email('Ingresa un correo válido'),
+  password: z.string().min(1, 'La contraseña es obligatoria'),
 });
 
 export const registerFormSchema = z.object({
-  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
-  email: z.string().email('Insira um e-mail válido'),
-  password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
-  confirmPassword: z.string().min(1, 'Confirmação de senha obrigatória'),
+  name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  email: z.string().email('Ingresa un correo válido'),
+  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+  confirmPassword: z.string().min(1, 'La confirmación de contraseña es obligatoria'),
 }).refine(data => data.password === data.confirmPassword, {
-  message: 'As senhas não coincidem',
+  message: 'Las contraseñas no coinciden',
   path: ['confirmPassword'],
 });
 
