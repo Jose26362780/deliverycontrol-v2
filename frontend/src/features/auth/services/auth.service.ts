@@ -51,7 +51,7 @@ export class AuthService {
   public static async loginWithGoogle(): Promise<void> {
     const result = await betterAuthClient.signIn.social({
       provider: 'google',
-      callbackURL: `${window.location.origin}/home`,
+      callbackURL: `${window.location.origin}/dashboard`,
     });
 
     if (result.error) {

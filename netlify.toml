@@ -7,3 +7,11 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+# SPA fallback: o app navega por pushState (/dashboard, /entregas, ...).
+# Sem isso, um reload ou redirect externo (ex: callback do Google para
+# /dashboard) cai no "Page not found" do Netlify em vez de carregar o app.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

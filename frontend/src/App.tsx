@@ -20,6 +20,7 @@ function MainApp() {
     const pathToTab: Record<string, string> = {
       '/': 'dashboard',
       '/home': 'dashboard',
+      '/dashboard': 'dashboard',
       '/entregas': 'deliveries',
       '/deliveries': 'deliveries',
       '/funcionarios': 'employees',
