@@ -68,9 +68,11 @@ export const betterAuth = createBetterAuth({
   advanced: {
     useSecureCookies: isSecureContext,
     // Frontend (Netlify) e backend (Render) são sites diferentes.
-    // Sem SameSite=None + Secure + Partitioned (CHIPS), o Chrome — sobretudo
-    // em aba anônima — bloqueia o cookie de state/PKCE como third-party e o
-    // callback do Google falha com `?error=state_mismatch`.
+    // O cookie de state/PKCE é gravado via fetch cross-site (POST do Netlify)
+    // e lido no callback (navegação top-level no backend), por isso precisa de
+    // SameSite=None + Secure. NÃO usar `partitioned` aqui: cookie particionado
+    // fica preso à partição do site de origem (netlify.app) e não é enviado no
+    // callback (top-level no backend) — geraria `?error=state_mismatch` sempre.
     // Em dev (http://localhost) mantém o padrão Lax, pois
     // SameSite=None exige Secure/HTTPS.
     ...(isSecureContext
@@ -78,7 +80,6 @@ export const betterAuth = createBetterAuth({
           defaultCookieAttributes: {
             sameSite: 'none',
             secure: true,
-            partitioned: true,
           },
         }
       : {}),
