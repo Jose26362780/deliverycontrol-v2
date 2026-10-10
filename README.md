@@ -1,86 +1,216 @@
-# DeliveryControl
+# 🚚 DeliveryControl | Gestão de Entregas e Fechamento Financeiro
 
-Plataforma full stack para gestão de operações de entrega, desenvolvida com React, TypeScript e Node.js.
+O **DeliveryControl** é uma plataforma full stack para gestão de operações de entrega. O sistema centraliza o cadastro de funcionários, o registro de entregas, o controle de despesas com gasolina, os indicadores operacionais e o fechamento financeiro por período.
 
-O sistema permite controlar entregas, funcionários, despesas com gasolina, regras de divisão financeira, indicadores operacionais e relatórios para fechamento.
+O projeto foi estruturado para separar claramente a experiência do usuário no **React** da API de negócio em **Node.js/Express**. A autenticação principal utiliza **Better Auth**, com sessões em cookies e suporte a login tradicional e Google OAuth. O banco de dados é modelado com **Prisma** e PostgreSQL.
 
-## Preview
+Durante o desenvolvimento, os principais objetivos foram:
 
-Aplicação disponível localmente durante o desenvolvimento:
+- Construir uma aplicação web responsiva organizada por funcionalidades de negócio.
+- Manter as regras financeiras no backend, que é a fonte de verdade dos cálculos.
+- Isolar os dados de cada usuário autenticado.
+- Implementar a autenticação com o google 
+- Permitir execução local com Vite e API Express, além de deploy separado no Netlify e Render.
+- Usar o **Antigravity** para centralizar regras de arquitetura, especificações, skills e workflows do projeto.
+
+![preview](.github/cover.png)
+
+## 🚀 Tecnologias utilizadas
+
+### Frontend
+
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-6-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Zustand](https://img.shields.io/badge/Zustand-Estado_global-443E38?style=for-the-badge)
+
+- React 19 com TypeScript e Vite.
+- Tailwind CSS, Lucide React e componentes reutilizáveis.
+- Zustand para o estado de autenticação.
+- React Hook Form e Zod para formulários e validação.
+- Recharts para gráficos.
+- jsPDF e AutoTable para relatórios em PDF.
+
+### Backend e dados
+
+![Node.js](https://img.shields.io/badge/Node.js-22-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-4-000000?style=for-the-badge&logo=express&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Produção-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Better Auth](https://img.shields.io/badge/Better_Auth-Sessões-111827?style=for-the-badge)
+
+- Node.js, TypeScript e Express.
+- Prisma Client com adapter PostgreSQL.
+- Better Auth para sessões, cookies, e-mail/senha e Google OAuth.
+- Zod para validação de entradas.
+- Helmet, CORS configurável e rate limiting nas rotas de autenticação.
+- `bcryptjs` e JWT mantidos para compatibilidade com o fluxo legado.
+
+---
+
+## ✨ Funcionalidades
+
+- Dashboard com entregas, faturamento, gasolina e receita líquida.
+- Cadastro, edição, ativação/desativação e remoção de funcionários.
+- Registro e manutenção de entregas por período e funcionário.
+- Registro de despesas com gasolina, incluindo valor e litragem.
+- Configuração da divisão financeira entre empresa/veículo e entregadores.
+- Relatórios financeiros com visualização, impressão e exportação em PDF.
+- Navegação por dashboard, entregas, funcionários, gasolina e relatórios.
+- Feedback visual com loading, estados vazios, erros e toasts.
+- Autenticação por e-mail e senha ou pelo Google.
+
+
+
+## 🧱 Arquitetura do projeto
 
 ```text
-http://localhost:5173
+.
+├── backend/
+│   ├── server.ts                 # Inicialização do Express, middlewares e API
+│   └── server/
+│       ├── auth/                 # Configuração do Better Auth
+│       ├── config/               # Ambiente, CORS e configurações
+│       ├── db/                   # Cliente Prisma/PostgreSQL
+│       ├── middlewares/          # Auth, validação e tratamento de erros
+│       ├── modules/              # Controllers e rotas por domínio
+│       ├── repositories/         # Acesso persistente aos dados
+│       └── utils/                # Respostas e validações compartilhadas
+├── frontend/
+│   └── src/
+│       ├── app/                  # Rotas e componentes compartilhados
+│       ├── components/           # Layout e componentes de UI
+│       ├── features/             # Auth, dashboard, entregas, funcionários etc.
+│       ├── services/             # Cliente HTTP e integrações
+│       └── stores/               # Estado global, incluindo autenticação
+├── prisma/
+│   ├── schema.prisma             # Modelos e relações do banco
+│   └── migrations/               # Migrações PostgreSQL
+├── antigravity/
+│   ├── rules/                    # Regras permanentes de frontend, backend e segurança
+│   ├── skills/                   # Guias reutilizáveis por área
+│   ├── spec-kit/                 # Especificação, plano e tarefas do produto
+│   └── workflows/                # Procedimentos para documentação, testes e revisão
+├── .env.example                  # Modelo de configuração local
+├── vite.config.ts                # Vite, alias e proxy de /api
+├── render.yaml                   # Deploy do backend e PostgreSQL no Render
+└── netlify.toml                  # Build e fallback SPA do frontend no Netlify
 ```
 
-O backend disponibiliza a API em:
+### Arquitetura do frontend
+
+O frontend é uma SPA React. A composição principal segue o fluxo:
 
 ```text
-http://localhost:3000
+App
+  ↓
+useAuth / Zustand
+  ↓
+Layout e navegação
+  ↓
+Páginas por feature
+  ↓
+Hooks e services
+  ↓
+API REST em /api
 ```
 
-## Tecnologias
+Cada domínio fica em `frontend/src/features/`, com páginas, containers, componentes e hooks próprios. O `api-client.ts` centraliza as requisições, prefixa os endpoints com `/api`, envia cookies com `credentials: include` e sinaliza sessões não autorizadas.
 
-- React 19
-- TypeScript
-- Vite
-- Tailwind CSS
-- Node.js
-- Express
-- Zustand
-- React Hook Form e Zod
-- Recharts
-- Lucide React
-- JWT e bcryptjs
-- jsPDF e jsPDF AutoTable
-- Concurrently
+### Arquitetura do backend
 
-## Funcionalidades
-
-- Autenticação com login, cadastro e sessão por token JWT.
-- Dashboard com indicadores de entregas, faturamento, combustível e receita líquida.
-- Cadastro, edição e exclusão de funcionários e entregadores.
-- Registro, edição e exclusão de turnos de entrega.
-- Registro, edição e exclusão de despesas com gasolina.
-- Filtros por período, funcionário e tipo de informação.
-- Configuração dos percentuais de divisão entre veículo/empresa e entregadores.
-- Cálculo de receita líquida com desconto das despesas de combustível.
-- Relatórios financeiros com visualização, impressão e exportação para PDF.
-- Navegação entre painel, entregas, funcionários, gasolina e relatórios.
-- Sidebar fixa, conteúdo central com rolagem e footer no final da página.
-- Modais personalizados para confirmar exclusões.
-
-## Regra financeira padrão
-
-O sistema utiliza como configuração padrão:
-
-- 50% para o veículo/empresa.
-- 25% para o entregador A.
-- 25% para o entregador B.
-
-A receita líquida é calculada da seguinte forma:
+O Express organiza a API por módulos:
 
 ```text
-Receita líquida = máximo(0, receita bruta - despesas com gasolina)
+Request
+  ↓
+Route
+  ↓
+Middleware de autenticação/validação
+  ↓
+Controller
+  ↓
+Service ou Repository
+  ↓
+Prisma
+  ↓
+PostgreSQL
 ```
 
-## Como executar
+Os módulos atuais incluem `auth`, `employees`, `deliveries`, `gasoline`, `dashboard`, `analytics`, `reports` e `settings`. As rotas são montadas sob o prefixo `/api`, e o servidor também serve o build do frontend em produção.
+
+## 🔐 Autenticação com Google
+
+O login social é implementado pelo Better Auth, não por um fluxo OAuth manual no React:
+
+1. O usuário seleciona **Continuar com Google** no `LoginForm` ou `RegisterForm`.
+2. O cliente Better Auth inicia o fluxo social com o provedor `google`.
+3. O backend conduz o callback em `/api/auth/callback/google`.
+4. O Google é configurado no backend com `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET`.
+5. O Better Auth cria ou localiza o usuário e a conta vinculada nas tabelas `users` e `accounts`.
+6. A aplicação mantém uma sessão própria em cookie e redireciona para `/dashboard`.
+
+O `GOOGLE_CLIENT_SECRET` nunca deve ser colocado no frontend, no README ou no Git. Em produção, frontend e backend podem estar em domínios diferentes; por isso, o Better Auth usa cookies `Secure` e `SameSite=None` quando `BETTER_AUTH_URL` é HTTPS, e o frontend deve definir `VITE_API_URL`.
+
+O projeto também oferece cadastro/login por e-mail e senha. Quando `BETTER_AUTH_ENABLED=true`, esse é o fluxo principal; com a flag desativada, as rotas JWT legadas permanecem disponíveis para migração e desenvolvimento.
+
+## 🔌 API principal
+
+Todas as rotas abaixo usam o prefixo `/api`:
+
+| Método | Endpoint | Responsabilidade |
+| :--- | :--- | :--- |
+| `GET` | `/api/health` | Healthcheck da aplicação e do banco |
+| `GET/POST/PUT/DELETE` | `/api/employees` | Gestão de funcionários |
+| `GET/POST/PUT/DELETE` | `/api/deliveries` | Gestão de entregas |
+| `GET/POST/PUT/DELETE` | `/api/gasoline` | Gestão de despesas com gasolina |
+| `GET` | `/api/dashboard/stats` | Indicadores do dashboard |
+| `GET` | `/api/analytics/*` | Consultas analíticas |
+| `GET` | `/api/reports/financial` | Fechamento financeiro |
+| `GET/PUT` | `/api/settings/split` | Configuração dos percentuais |
+| `ALL` | `/api/auth/*` | Better Auth, incluindo login social |
+
+Com Better Auth ativo, a sessão é enviada por cookie. O middleware de autenticação recupera essa sessão e associa o `userId` às operações protegidas, impedindo que o frontend escolha o proprietário dos dados.
+
+## ⚙️ Configuração local
 
 ### Pré-requisitos
 
 - Node.js 20 ou superior.
 - npm.
+- PostgreSQL local ou uma URL de PostgreSQL acessível.
+- Credenciais OAuth do Google para habilitar o login social.
 
 ### Instalação
 
-1. Clone ou baixe este repositório.
-2. Entre na pasta do projeto.
-3. Instale as dependências:
-
 ```bash
+git clone https://github.com/Jose26362780/deliverycontrol-v2.git
+cd deliverycontrol-v2
 npm install
 ```
 
-### Desenvolvimento
+Copie `.env.example` para `.env` e preencha pelo menos:
+
+```env
+PORT=3000
+NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
+VITE_API_URL=http://localhost:3000
+DATABASE_URL="postgresql://usuario:senha@localhost:5432/deliverycontrol_db"
+BETTER_AUTH_ENABLED=true
+BETTER_AUTH_SECRET="use-uma-chave-com-pelo-menos-32-caracteres"
+BETTER_AUTH_URL=http://localhost:3000
+GOOGLE_CLIENT_ID="seu-client-id.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="seu-client-secret"
+```
+
+Gere o client Prisma e aplique as migrações:
+
+```bash
+npm run db:generate
+npm run db:migrate
+```
 
 Inicie frontend e backend juntos:
 
@@ -88,139 +218,59 @@ Inicie frontend e backend juntos:
 npm run dev
 ```
 
-Depois acesse:
+Acesse `http://localhost:5173`. A API estará em `http://localhost:3000` e o Vite encaminhará `/api` para o backend.
 
-```text
-http://localhost:5173
-```
-
-O frontend utiliza o proxy do Vite para encaminhar as requisições `/api` ao backend em `http://localhost:3000`.
-
-Também é possível iniciar os processos separadamente:
-
-```bash
-npm run dev:backend
-```
-
-```bash
-npm run dev:frontend
-```
-
-### Credenciais de demonstração
-
-```text
-E-mail: demo@deliverycontrol.com
-Senha: senha123
-```
-
-## Scripts disponíveis
+## 📜 Scripts disponíveis
 
 | Comando | Descrição |
-| --- | --- |
+| :--- | :--- |
 | `npm run dev` | Inicia frontend e backend em paralelo. |
-| `npm run dev:backend` | Inicia apenas a API Express. |
-| `npm run dev:frontend` | Inicia apenas o Vite. |
-| `npm run lint` | Executa a verificação de tipos TypeScript. |
-| `npm run build` | Compila frontend e backend para produção. |
-| `npm start` | Inicia o servidor compilado. |
-| `npm run clean` | Remove a pasta de build `dist`. |
+| `npm run dev:backend` | Inicia somente o Express. |
+| `npm run dev:frontend` | Inicia somente o Vite. |
+| `npm run lint` | Executa a verificação de tipos com TypeScript. |
+| `npm run build` | Gera o Prisma Client, compila o frontend e empacota o backend. |
+| `npm run build:frontend` | Gera somente o build estático do frontend. |
+| `npm start` | Inicia o servidor compilado em `dist/server.cjs`. |
+| `npm run db:generate` | Gera o Prisma Client. |
+| `npm run db:migrate` | Executa migrações em desenvolvimento. |
+| `npm run db:deploy` | Aplica migrações em produção. |
 
-## API
+## ☁️ Deploy
 
-As principais rotas estão disponíveis sob o prefixo `/api`:
+O projeto possui duas estratégias:
 
-- `GET /api/health`
-- `POST /api/auth/login`
-- `POST /api/auth/register`
-- `GET /api/auth/me`
-- `GET /api/employees`
-- `GET /api/deliveries`
-- `GET /api/gasoline`
-- `GET /api/dashboard/stats`
-- `GET /api/reports/financial`
-- `GET /api/settings/split`
+- **Netlify**: publica somente o frontend com `npm run build:frontend`, servindo `dist` e mantendo o fallback SPA.
+- **Render**: executa o backend Node.js e o PostgreSQL. O `render.yaml` configura geração do Prisma Client, migrações e build de produção.
 
-As rotas protegidas utilizam o cabeçalho:
-
-```http
-Authorization: Bearer <TOKEN_JWT>
-```
-
-## Estrutura do projeto
+No deploy separado, configure `VITE_API_URL` no frontend, `FRONTEND_URL` no backend e os mesmos domínios autorizados no Google Cloud Console. O callback OAuth deve apontar para:
 
 ```text
-.
-├── backend/
-│   ├── server.ts                 # Entrada do servidor Express
-│   └── server/
-│       ├── config/               # Configurações e variáveis de ambiente
-│       ├── db/                   # Persistência local e dados de demonstração
-│       ├── middlewares/          # Middleware de autenticação
-│       ├── modules/              # Auth, entregas, funcionários, gasolina e relatórios
-│       └── types.ts              # Tipos do backend
-├── frontend/
-│   ├── index.html                # Documento base da aplicação
-│   ├── public/                   # Assets públicos
-│   └── src/
-│       ├── components/           # Layout e componentes de interface
-│       ├── features/             # Funcionalidades organizadas por domínio
-│       ├── services/              # Cliente HTTP e serviços
-│       ├── stores/                # Estado global
-│       ├── types/                 # Tipos compartilhados do frontend
-│       └── App.tsx               # Componente principal
-├── dist/                         # Arquivos gerados pelo build
-├── package.json                  # Scripts e dependências
-├── tsconfig.json                 # Configuração TypeScript
-├── vite.config.ts                # Configuração do frontend e proxy da API
-├── antigravity/
-│   ├── spec-kit/                 # Especificações, plano e tarefas do produto
-│   ├── skills/                   # Guias reutilizáveis de implementação
-│   ├── rules/                    # Regras permanentes do projeto
-│   └── workflows/                # Procedimentos operacionais
-└── TASKS.md                      # Roadmap operacional do projeto
+https://seu-backend/api/auth/callback/google
 ```
 
-## Persistência de dados
-
-Durante o desenvolvimento, o backend utiliza um arquivo JSON local em `.data/deliverycontrol.db.json`.
-
-Para produção, recomenda-se substituir essa persistência por PostgreSQL, conforme descrito em
-[BACKEND_SPEC_KIT.md](antigravity/spec-kit/BACKEND_SPEC_KIT.md).
-
-## Deploy
-
-O projeto pode ser publicado como um único serviço Node.js ou separado em frontend e backend.
-
-Para um serviço único:
+Também é possível executar como serviço único:
 
 ```bash
 npm run build
 npm start
 ```
 
-O backend compilado serve os arquivos do frontend a partir da pasta `dist` quando `NODE_ENV=production`.
+## 🧭 Antigravity no projeto
 
-Também é possível hospedar o backend como Web Service e o frontend como Static Site. Nesse cenário, será necessário configurar a URL pública da API e CORS para permitir a comunicação entre os dois domínios.
+O diretório `antigravity/` funciona como uma camada de governança e produtividade para desenvolvimento assistido por IA. Ele não é uma dependência executada pela aplicação; organiza o conhecimento que orienta novas alterações:
 
-## Aprendizados
+- `rules/`: padrões obrigatórios de arquitetura, segurança, frontend, backend e documentação.
+- `skills/`: guias práticos para API REST, autenticação, persistência, React e regras de negócio.
+- `spec-kit/`: visão do produto, especificação técnica do backend, plano e tarefas.
+- `workflows/`: processos repetíveis para atualizar o README, executar testes e revisar código.
 
-Este projeto pratica conceitos de desenvolvimento full stack, incluindo:
+O README deve permanecer conciso; os detalhes de implementação e o roadmap continuam no [Spec Kit](antigravity/spec-kit/SPEC_KIT.md), no [Spec Kit do backend](antigravity/spec-kit/BACKEND_SPEC_KIT.md) e no [TASKS.md](TASKS.md).
 
-- Organização de um monorepo com frontend e backend.
-- Criação de APIs REST com Express e TypeScript.
-- Autenticação e autorização com JWT.
-- Validação de dados com Zod.
-- Gerenciamento de estado com Zustand.
-- Criação de interfaces responsivas com React e Tailwind CSS.
-- Cálculos financeiros e regras de divisão de receita.
-- Geração de relatórios e documentos PDF.
-- Integração entre frontend Vite e backend Node.js.
+## 👨‍💻 Sobre mim
 
-## Sobre mim
+Engenheiro de Software e desenvolvedor apaixonado por tecnologia, com foco em desenvolvimento Full Stack e experiência com JavaScript, TypeScript, React, Angular e Node.js.
 
-Engenheiro de Software e desenvolvedor apaixonado por tecnologia, com foco em desenvolvimento Full Stack. Atualmente, estudo e trabalho principalmente com JavaScript, TypeScript, Angular, React e Node.js.
-
-## Contato
+## 🔗 Contato
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jose-martinez-352032222/)
 [![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:juniorjose1925@gmail.com)
