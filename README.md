@@ -19,11 +19,10 @@ Durante o desenvolvimento, os principais objetivos foram:
 
 ### Frontend
 
-![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-6-646CFF?style=for-the-badge&logo=vite&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
-![Zustand](https://img.shields.io/badge/Zustand-Estado_global-443E38?style=for-the-badge)
+![React](https://img.shields.io/badge/React-0175C2?style=for-the-badge&logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+
 
 - React 19 com TypeScript e Vite.
 - Tailwind CSS, Lucide React e componentes reutilizáveis.
@@ -34,11 +33,10 @@ Durante o desenvolvimento, os principais objetivos foram:
 
 ### Backend e dados
 
-![Node.js](https://img.shields.io/badge/Node.js-22-339933?style=for-the-badge&logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/Express-4-000000?style=for-the-badge&logo=express&logoColor=white)
-![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Produção-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![Better Auth](https://img.shields.io/badge/Better_Auth-Sessões-111827?style=for-the-badge)
+![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+
 
 - Node.js, TypeScript e Express.
 - Prisma Client com adapter PostgreSQL.
@@ -173,7 +171,7 @@ Todas as rotas abaixo usam o prefixo `/api`:
 
 Com Better Auth ativo, a sessão é enviada por cookie. O middleware de autenticação recupera essa sessão e associa o `userId` às operações protegidas, impedindo que o frontend escolha o proprietário dos dados.
 
-## ⚙️ Configuração local
+
 
 ### Pré-requisitos
 
@@ -272,6 +270,6 @@ Engenheiro de Software e desenvolvedor apaixonado por tecnologia, com foco em de
 
 ## 🔗 Contato
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jose-martinez-352032222/)
-[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:juniorjose1925@gmail.com)
-[![Portfólio](https://img.shields.io/badge/Jose.Dev-0A0A03?style=for-the-badge&logo=react&logoColor=white)](https://my-portfolio-jose-martinez.netlify.app/)
+[![linkedin](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jose-martinez-352032222/)
+[![gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](https://mailto:juniorjose1925@gmail.com)
+[![portfolio](https://img.shields.io/badge/Jose.Dev-0A0A0A?style=for-the-badge&logo=MyWeb&logoColor=white)](https://my-portfolio-jose-martinez.netlify.app/)
